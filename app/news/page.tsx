@@ -1,5 +1,6 @@
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
+import Image from "next/image";
 
 export default function NewsPage() {
   const posts = [
@@ -22,8 +23,8 @@ export default function NewsPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((p) => (
             <article key={p.id} className="rounded-xl overflow-hidden border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5">
-              <div className="aspect-video bg-black/10">
-                <img src={p.img} alt={p.title} className="w-full h-full object-cover" />
+              <div className="aspect-video bg-black/10 relative">
+                <Image src={p.img} alt={p.title} fill className="object-cover" />
               </div>
               <div className="p-4">
                 <p className="text-xs text-black/60 dark:text-white/60">{p.date}</p>

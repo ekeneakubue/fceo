@@ -1,6 +1,5 @@
 "use client";
-import Navbar from "../components/navbar/Navbar";
-import Footer from "../components/footer/Footer";
+// Navbar and Footer are intentionally not used on this page to keep focus on authentication UI
 import { useState } from "react";
 
 export default function LoginPage() {

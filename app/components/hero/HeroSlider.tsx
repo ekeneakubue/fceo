@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type Slide = {
   imageUrl: string;
@@ -32,8 +32,14 @@ export default function HeroSlider({
   const [isHovering, setIsHovering] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  const next = () => setIndex((prev) => (prev + 1) % allSlides.length);
-  const prev = () => setIndex((prev) => (prev - 1 + allSlides.length) % allSlides.length);
+  const next = useCallback(
+    () => setIndex((prev) => (prev + 1) % allSlides.length),
+    [allSlides.length]
+  );
+  const prev = useCallback(
+    () => setIndex((prev) => (prev - 1 + allSlides.length) % allSlides.length),
+    [allSlides.length]
+  );
 
   useEffect(() => {
     if (isHovering || allSlides.length <= 1) return;
@@ -41,7 +47,7 @@ export default function HeroSlider({
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
-  }, [isHovering, autoPlayMs, allSlides.length]);
+  }, [isHovering, autoPlayMs, allSlides.length, next]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -50,7 +56,7 @@ export default function HeroSlider({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [next, prev]);
 
   return (
     <section

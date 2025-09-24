@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [aboutHover, setAboutHover] = useState(false);
-  const [isAdmissionOpen, setIsAdmissionOpen] = useState(false);
   const [admissionHover, setAdmissionHover] = useState(false);
   const [isAcademicsOpen, setIsAcademicsOpen] = useState(false);
   const [academicsHover, setAcademicsHover] = useState(false);
@@ -18,8 +18,8 @@ export default function Navbar() {
     <nav className="bg-[rgb(3,158,29)] text-white">
       <div className="mx-auto max-w-7xl px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-12 h-12">
-            <img className="w-full h-full rounded" src="/images/fceo-logo.jpg" alt="logo" />
+          <div className="w-12 h-12 relative">
+            <Image className="rounded object-cover" src="/images/fceo-logo.jpg" alt="logo" fill />
           </div>
           <h2 className="text-xl font-semibold">FCE Ofeme Ohuhu</h2>
         </div>
