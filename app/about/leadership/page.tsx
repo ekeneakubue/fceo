@@ -22,7 +22,7 @@ export default function LeadershipPage() {
           ].map((p) => (
             <div key={p.name} className="rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 overflow-hidden">
               <div className="aspect-[4/3] bg-black/10">
-                <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                <img src={p.img} alt={p.name} className="w-full object-cover" />
               </div>
               <div className="p-4">
                 <h3 className="font-semibold">{p.name}</h3>
