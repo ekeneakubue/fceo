@@ -30,7 +30,7 @@ export default function ApplicationFormPage() {
           and evidence of payment. Attach photocopies of your credentials and submit to the Admission Office.
         </p>
         <p className="text-[13px] text-black/60 dark:text-white/60 mt-2">
-          Note: To apply for POST UTME SCREENING 2025/2026 select the corresponding option under "Applying For".
+          Note: To apply for POST UTME SCREENING 2025/2026 select the corresponding option under &quot;Applying For&quot;.
         </p>
       </section>
 
