@@ -18,7 +18,6 @@ export default function Footer() {
             <br />
             <br />
             <h3 className="text-white text-lg mb-2">Stakeholders</h3>
-            <p><a href="#" className="hover:text-white">NUC</a></p>
             <p><a href="#" className="hover:text-white">Ministry of Education</a></p>
             <p><a href="#" className="hover:text-white">TETFund</a></p>
           </div>
