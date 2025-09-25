@@ -15,10 +15,10 @@ export default function LeadershipPage() {
       <section className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { name: "Provost", img: "/images/officers/provost.jpg" },
-            { name: "Registrar", img: "/images/officers/registrar.jpg" },
-            { name: "Bursar", img: "/images/officers/bursar.jpg" },
-            { name: "Librarian", img: "/images/officers/liberian.jpg" },
+            { name: "Provost", img: "/images/officers/provost.jpg", profile: "Ph.D(English), MA, BA, NCE, FICAN, NATRESL, MNATECEP." },
+            { name: "Registrar", img: "/images/officers/registrar.jpg", profile: "M.Sc(PA), PGDPA, HND, MNIM, FCAI(JP)." },
+            { name: "Bursar", img: "/images/officers/bursar.jpg", profile: "B.Sc, CITM, FIIA, CNA" },
+            { name: "Librarian", img: "/images/officers/liberian.jpg", profile: "BLS, MLS, PDE, CCA, LRCN." },
           ].map((p) => (
             <div key={p.name} className="rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 overflow-hidden">
               <div className="aspect-[4/3] bg-black/10">
@@ -26,7 +26,7 @@ export default function LeadershipPage() {
               </div>
               <div className="p-4">
                 <h3 className="font-semibold">{p.name}</h3>
-                <p className="text-sm text-black/70 dark:text-white/70">Profile coming soon.</p>
+                <p className="text-sm text-black/70 dark:text-white/70">{p.profile}</p>
               </div>
             </div>
           ))}
