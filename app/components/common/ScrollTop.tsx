@@ -15,7 +15,7 @@ export default function ScrollTop() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (pathname === "/login") return null;
+  if (pathname === "/staff-login") return null;
 
   if (!isVisible) return null;
 

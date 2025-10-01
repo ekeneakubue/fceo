@@ -21,9 +21,9 @@ export default function AboutHistoryPage() {
             { year: "2025", text: "Accreditation of new programmes" },
           ].map((item) => (
             <li key={item.year} className="mb-10 ms-6">
-              <span className="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-[rgb(3,158,29)] text-white text-xs font-semibold">{item.year}</span>
-              <h3 className="text-lg font-semibold mt-1">{item.text}</h3>
-              <p className="text-sm text-black/70 dark:text-white/70 mt-1">Brief description goes here describing the milestone and its impact.</p>
+              <span className="absolute -start-5 flex h-10 w-10 items-center justify-center rounded-full bg-[rgb(3,158,29)] text-white text-xs font-semibold">{item.year}</span>
+              <h3 className="text-lg font-semibold mt-1 ml-2">{item.text}</h3>
+              <p className="text-sm text-black/70 dark:text-white/70 mt-1 ml-2">Brief description goes here describing the milestone and its impact.</p>
             </li>
           ))}
         </ol>

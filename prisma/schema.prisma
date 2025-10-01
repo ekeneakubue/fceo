@@ -1,0 +1,172 @@
+// Prisma schema for Federal College of Education, Ofeme Ohuhu
+// Roles with dashboard ranking and role-scoped widgets
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Change provider/url to your database (postgresql/mysql/sqlserver/mongodb)
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Stable role keys to reference in code and seeding
+enum RoleKey {
+  SUPER_ADMIN
+  ADMIN
+  LECTURER
+  PARENT
+  STAFF
+}
+
+model Role {
+  id        String   @id @default(cuid())
+  key       RoleKey  @unique
+  label     String
+  // Larger rank means higher precedence in dashboards and authorization checks
+  rank      Int
+  users     User[]
+  widgets   DashboardWidget[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  roleId         String
+  role           Role     @relation(fields: [roleId], references: [id])
+
+  // Optional profile relations by role
+  teacherProfile    TeacherProfile?
+  parentProfile     ParentProfile?
+  supervisorProfile SupervisorProfile?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// Role-scoped dashboard widgets (cards/links/stats) with ordering
+model DashboardWidget {
+  id        String  @id @default(cuid())
+  title     String
+  // Optional description or counter key your app can compute server-side
+  description String?
+  // Destination route or identifier to navigate when clicked
+  href      String
+  // Position controls layout order inside a role dashboard
+  position  Int
+
+  roleId    String
+  role      Role    @relation(fields: [roleId], references: [id])
+}
+
+// Teacher-specific fields
+model TeacherProfile {
+  id         String @id @default(cuid())
+  userId     String @unique
+  user       User   @relation(fields: [userId], references: [id])
+
+  staffNo    String?
+  department String?
+}
+
+// Parent-specific fields
+model ParentProfile {
+  id         String @id @default(cuid())
+  userId     String @unique
+  user       User   @relation(fields: [userId], references: [id])
+
+  phone      String?
+}
+
+// Supervisor-specific fields
+model SupervisorProfile {
+  id         String @id @default(cuid())
+  userId     String @unique
+  user       User   @relation(fields: [userId], references: [id])
+
+  unit       String?
+}
+
+
+// Demo storage-backed entities moved from localStorage to DB
+model Student {
+  id         String   @id @default(cuid())
+  regNo      String
+  surname    String?
+  firstName  String?
+  middleName String?
+  gender     String?
+  school     String?
+  programme  String?
+
+  // Extended profile fields
+  email                String?
+  permanentAddress     String?
+  residentialAddress   String?
+  phone                String?
+  homeTown             String?
+  state                String?
+  lga                  String?
+  dateOfBirth          String?
+  bloodGroup           String?
+  genotype             String?
+  disability           String?
+  nextOfKinName        String?
+  nextOfKinAddress     String?
+  nextOfKinPhone       String?
+  nextOfKinEmail       String?
+  nextOfKinRelationship String?
+  avatarDataUrl        String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([regNo, programme])
+}
+
+model NewsPost {
+  id           String   @id @default(cuid())
+  title        String
+  date         String?
+  body         String?
+  imageDataUrl String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GalleryItem {
+  id           String   @id @default(cuid())
+  title        String?
+  date         String?
+  imageDataUrl String
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// DemoUser mirrors the client-side demo structure used in localStorage
+model DemoUser {
+  id            String   @id @default(cuid())
+  fullName      String?
+  email         String?  @unique
+  regNo         String?
+  roleKey       RoleKey?
+  roleLabel     String?
+  avatarDataUrl String?
+  password      String? // demo only; do NOT store plaintext in production
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([regNo])
+}
+
