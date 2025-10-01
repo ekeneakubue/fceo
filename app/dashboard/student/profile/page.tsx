@@ -25,6 +25,7 @@ export default function StudentProfilePage() {
   const [message, setMessage] = useState<string>("");
   const [dbStudent, setDbStudent] = useState<any>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -143,7 +144,7 @@ export default function StudentProfilePage() {
                 {!isEditing ? (
                   <button
                     type="button"
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => setIsModalOpen(true)}
                     className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
                   >
                     Update Profile
@@ -363,6 +364,275 @@ export default function StudentProfilePage() {
             </form>
           )}
         </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => {
+                // Close modal without saving; restore from stored values
+                try {
+                  const raw = localStorage.getItem("fceo.currentUser");
+                  if (raw) {
+                    const u = JSON.parse(raw);
+                    setAvatarDataUrl(u?.avatarDataUrl || "");
+                    setPermanentAddress(u?.permanentAddress || "");
+                    setResidentialAddress(u?.residentialAddress || "");
+                    setPhone(u?.phone || "");
+                    setEmailAddress(u?.email || "");
+                    setHomeTown(u?.homeTown || "");
+                    setStateVal(u?.state || "");
+                    setLga(u?.lga || "");
+                    setDateOfBirth(u?.dateOfBirth || "");
+                    setBloodGroup(u?.bloodGroup || "");
+                    setGenotype(u?.genotype || "");
+                    setDisability(u?.disability || "");
+                    setNokName(u?.nextOfKinName || "");
+                    setNokAddress(u?.nextOfKinAddress || "");
+                    setNokPhone(u?.nextOfKinPhone || "");
+                    setNokEmail(u?.nextOfKinEmail || "");
+                    setNokRelationship(u?.nextOfKinRelationship || "");
+                  }
+                } catch {}
+                setIsModalOpen(false);
+              }}
+            />
+            <div className="relative z-50 mx-auto my-8 w-full max-w-3xl">
+              <div className="overflow-y-scroll rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white dark:bg-zinc-900 shadow-xl overflow-hidden max-h-[90vh] grid grid-rows-[auto,1fr]">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-black/[.08] dark:border-white/[.145]">
+                  <div className="font-semibold">Update Profile</div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Reset fields from stored values but keep modal open
+                        try {
+                          const raw = localStorage.getItem("fceo.currentUser");
+                          if (raw) {
+                            const u = JSON.parse(raw);
+                            setAvatarDataUrl(u?.avatarDataUrl || "");
+                            setPermanentAddress(u?.permanentAddress || "");
+                            setResidentialAddress(u?.residentialAddress || "");
+                            setPhone(u?.phone || "");
+                            setEmailAddress(u?.email || "");
+                            setHomeTown(u?.homeTown || "");
+                            setStateVal(u?.state || "");
+                            setLga(u?.lga || "");
+                            setDateOfBirth(u?.dateOfBirth || "");
+                            setBloodGroup(u?.bloodGroup || "");
+                            setGenotype(u?.genotype || "");
+                            setDisability(u?.disability || "");
+                            setNokName(u?.nextOfKinName || "");
+                            setNokAddress(u?.nextOfKinAddress || "");
+                            setNokPhone(u?.nextOfKinPhone || "");
+                            setNokEmail(u?.nextOfKinEmail || "");
+                            setNokRelationship(u?.nextOfKinRelationship || "");
+                          }
+                        } catch {}
+                      }}
+                      className="h-9 px-3 rounded border border-black/20 text-sm"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Cancel edits and close
+                        try {
+                          const raw = localStorage.getItem("fceo.currentUser");
+                          if (raw) {
+                            const u = JSON.parse(raw);
+                            setAvatarDataUrl(u?.avatarDataUrl || "");
+                            setPermanentAddress(u?.permanentAddress || "");
+                            setResidentialAddress(u?.residentialAddress || "");
+                            setPhone(u?.phone || "");
+                            setEmailAddress(u?.email || "");
+                            setHomeTown(u?.homeTown || "");
+                            setStateVal(u?.state || "");
+                            setLga(u?.lga || "");
+                            setDateOfBirth(u?.dateOfBirth || "");
+                            setBloodGroup(u?.bloodGroup || "");
+                            setGenotype(u?.genotype || "");
+                            setDisability(u?.disability || "");
+                            setNokName(u?.nextOfKinName || "");
+                            setNokAddress(u?.nextOfKinAddress || "");
+                            setNokPhone(u?.nextOfKinPhone || "");
+                            setNokEmail(u?.nextOfKinEmail || "");
+                            setNokRelationship(u?.nextOfKinRelationship || "");
+                          }
+                        } catch {}
+                        setIsModalOpen(false);
+                      }}
+                      className="h-9 px-3 rounded border border-black/20 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+                <form
+                  className="p-4 grid gap-6 overflow-y-auto"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    try {
+                      const updated = {
+                        ...profile,
+                        avatarDataUrl: avatarDataUrl || undefined,
+                        permanentAddress: permanentAddress || undefined,
+                        residentialAddress: residentialAddress || undefined,
+                        phone: phone || undefined,
+                        email: emailAddress || undefined,
+                        homeTown: homeTown || undefined,
+                        state: stateVal || undefined,
+                        lga: lga || undefined,
+                        dateOfBirth: dateOfBirth || undefined,
+                        bloodGroup: bloodGroup || undefined,
+                        genotype: genotype || undefined,
+                        disability: disability || undefined,
+                        nextOfKinName: nokName || undefined,
+                        nextOfKinAddress: nokAddress || undefined,
+                        nextOfKinPhone: nokPhone || undefined,
+                        nextOfKinEmail: nokEmail || undefined,
+                        nextOfKinRelationship: nokRelationship || undefined,
+                      };
+                      const regNo = profile?.regNo;
+                      const programme = profile?.programme || dbStudent?.programme || "";
+                      if (!regNo || !programme) {
+                        setMessage("Missing Reg No or Programme; cannot update");
+                        return;
+                      }
+                      const payload = { regNo, programme, ...updated };
+                      const res = await fetch("/api/students", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      });
+                      if (!res.ok) {
+                        // attempt create if update fails
+                        await fetch("/api/students", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(payload),
+                        });
+                      }
+                      localStorage.setItem("fceo.currentUser", JSON.stringify(updated));
+                      setProfile(updated);
+                      setMessage("Profile updated successfully");
+                      try { window.dispatchEvent(new CustomEvent("fceo:profile-updated", { detail: { updated } })); } catch {}
+                      setIsModalOpen(false);
+                      setTimeout(() => setMessage(""), 2000);
+                    } catch {}
+                  }}
+                >
+                  <div className="rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 p-4">
+                    <div className="font-semibold mb-3">Personal Details</div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="md:col-span-2">
+                        <label className="block text-xs mb-1">Avatar</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="block w-full text-sm"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return setAvatarDataUrl("");
+                            const reader = new FileReader();
+                            reader.onload = () => setAvatarDataUrl(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                        {(avatarDataUrl || profile?.avatarDataUrl) && (
+                          <div className="mt-2 w-16 h-16 rounded-full overflow-hidden ring-1 ring-black/10">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={avatarDataUrl || profile?.avatarDataUrl || ""} alt="Avatar preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Permanent Address</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Residential Address</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={residentialAddress} onChange={(e) => setResidentialAddress(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Phone</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Email</label>
+                        <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Home Town</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={homeTown} onChange={(e) => setHomeTown(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">State</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Local Government</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={lga} onChange={(e) => setLga(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Date of Birth</label>
+                        <input type="date" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 p-4">
+                    <div className="font-semibold mb-3">Medical Details</div>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div>
+                        <label className="block text-xs mb-1">Blood Group</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Genotype</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={genotype} onChange={(e) => setGenotype(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Disability</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={disability} onChange={(e) => setDisability(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 p-4">
+                    <div className="font-semibold mb-3">Next of Kin Details</div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="block text-xs mb-1">Name</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokName} onChange={(e) => setNokName(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Relationship</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokRelationship} onChange={(e) => setNokRelationship(e.target.value)} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs mb-1">Address</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokAddress} onChange={(e) => setNokAddress(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Phone</label>
+                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokPhone} onChange={(e) => setNokPhone(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Email</label>
+                        <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokEmail} onChange={(e) => setNokEmail(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2">
+                    <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

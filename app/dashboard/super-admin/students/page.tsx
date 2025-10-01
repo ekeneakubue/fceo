@@ -11,6 +11,23 @@ type Student = {
   gender?: string;
   school?: string;
   programme?: string;
+  email?: string;
+  permanentAddress?: string;
+  residentialAddress?: string;
+  phone?: string;
+  homeTown?: string;
+  state?: string;
+  lga?: string;
+  dateOfBirth?: string;
+  bloodGroup?: string;
+  genotype?: string;
+  disability?: string;
+  nextOfKinName?: string;
+  nextOfKinAddress?: string;
+  nextOfKinPhone?: string;
+  nextOfKinEmail?: string;
+  nextOfKinRelationship?: string;
+  avatarDataUrl?: string;
 };
 
 export default function StudentsPage() {
@@ -58,7 +75,24 @@ export default function StudentsPage() {
         gender: cols.indexOf("gender"),
         school: cols.indexOf("school"),
         programme: cols.indexOf("programme"),
-      };
+        email: cols.indexOf("email"),
+        permanentAddress: cols.indexOf("permanentaddress"),
+        residentialAddress: cols.indexOf("residentialaddress"),
+        phone: cols.indexOf("phone"),
+        homeTown: cols.indexOf("hometown"),
+        state: cols.indexOf("state"),
+        lga: cols.indexOf("lga"),
+        dateOfBirth: cols.indexOf("dateofbirth"),
+        bloodGroup: cols.indexOf("bloodgroup"),
+        genotype: cols.indexOf("genotype"),
+        disability: cols.indexOf("disability"),
+        nextOfKinName: cols.indexOf("nextofkinname"),
+        nextOfKinAddress: cols.indexOf("nextofkinaddress"),
+        nextOfKinPhone: cols.indexOf("nextofkinphone"),
+        nextOfKinEmail: cols.indexOf("nextofkinemail"),
+        nextOfKinRelationship: cols.indexOf("nextofkinrelationship"),
+        avatarDataUrl: cols.indexOf("avatardataurl"),
+      } as const;
       // Basic required columns
       if (idx.regNo < 0 || idx.programme < 0) {
         setError("CSV must include at least RegNo and Programme columns.");
@@ -69,12 +103,29 @@ export default function StudentsPage() {
         const c = r.split(delimiter);
         return {
           regNo: idx.regNo >= 0 ? c[idx.regNo]?.trim() : undefined,
-          surname: idx.surname >= 0 ? c[idx.surname]?.trim() : undefined,
-          firstName: idx.firstName >= 0 ? c[idx.firstName]?.trim() : undefined,
-          middleName: idx.middleName >= 0 ? c[idx.middleName]?.trim() : undefined,
-          gender: idx.gender >= 0 ? c[idx.gender]?.trim() : undefined,
-          school: idx.school >= 0 ? c[idx.school]?.trim() : undefined,
+          surname: idx.surname >= 0 ? c[idx.surname]?.trim() : "",
+          firstName: idx.firstName >= 0 ? c[idx.firstName]?.trim() : "",
+          middleName: idx.middleName >= 0 ? c[idx.middleName]?.trim() : "",
+          gender: idx.gender >= 0 ? c[idx.gender]?.trim() : "",
+          school: idx.school >= 0 ? c[idx.school]?.trim() : "",
           programme: idx.programme >= 0 ? c[idx.programme]?.trim() : undefined,
+          email: idx.email >= 0 ? c[idx.email]?.trim() : "",
+          permanentAddress: idx.permanentAddress >= 0 ? c[idx.permanentAddress]?.trim() : "",
+          residentialAddress: idx.residentialAddress >= 0 ? c[idx.residentialAddress]?.trim() : "",
+          phone: idx.phone >= 0 ? c[idx.phone]?.trim() : "",
+          homeTown: idx.homeTown >= 0 ? c[idx.homeTown]?.trim() : "",
+          state: idx.state >= 0 ? c[idx.state]?.trim() : "",
+          lga: idx.lga >= 0 ? c[idx.lga]?.trim() : "",
+          dateOfBirth: idx.dateOfBirth >= 0 ? c[idx.dateOfBirth]?.trim() : "",
+          bloodGroup: idx.bloodGroup >= 0 ? c[idx.bloodGroup]?.trim() : "",
+          genotype: idx.genotype >= 0 ? c[idx.genotype]?.trim() : "",
+          disability: idx.disability >= 0 ? c[idx.disability]?.trim() : "",
+          nextOfKinName: idx.nextOfKinName >= 0 ? c[idx.nextOfKinName]?.trim() : "",
+          nextOfKinAddress: idx.nextOfKinAddress >= 0 ? c[idx.nextOfKinAddress]?.trim() : "",
+          nextOfKinPhone: idx.nextOfKinPhone >= 0 ? c[idx.nextOfKinPhone]?.trim() : "",
+          nextOfKinEmail: idx.nextOfKinEmail >= 0 ? c[idx.nextOfKinEmail]?.trim() : "",
+          nextOfKinRelationship: idx.nextOfKinRelationship >= 0 ? c[idx.nextOfKinRelationship]?.trim() : "",
+          avatarDataUrl: idx.avatarDataUrl >= 0 ? c[idx.avatarDataUrl]?.trim() : "",
         };
       });
       setPreview(parsed);
@@ -91,7 +142,7 @@ export default function StudentsPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Students</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Manage students. Upload CSV with columns: RegNo, Surname, FirstName, MiddleName, Gender, School, Programme.</p>
+              <p className="text-black/80 dark:text-white/80 mt-2">Manage students. Upload CSV with columns at minimum: RegNo, Programme. Optional columns will be filled with empty strings.</p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -185,19 +236,50 @@ export default function StudentsPage() {
                       Cancel
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
+                        const valid = preview.filter((s) => (s.regNo || "").trim() && (s.programme || "").trim());
+                        if (valid.length === 0) { setPreview(null); return; }
+                        const payload = valid.map((s) => ({
+                          regNo: String(s.regNo || "").trim(),
+                          programme: String(s.programme || "").trim(),
+                          surname: String(s.surname || ""),
+                          firstName: String(s.firstName || ""),
+                          middleName: String(s.middleName || ""),
+                          gender: String(s.gender || ""),
+                          school: String(s.school || ""),
+                          email: String(s.email || ""),
+                          permanentAddress: String(s.permanentAddress || ""),
+                          residentialAddress: String(s.residentialAddress || ""),
+                          phone: String(s.phone || ""),
+                          homeTown: String(s.homeTown || ""),
+                          state: String(s.state || ""),
+                          lga: String(s.lga || ""),
+                          dateOfBirth: String(s.dateOfBirth || ""),
+                          bloodGroup: String(s.bloodGroup || ""),
+                          genotype: String(s.genotype || ""),
+                          disability: String(s.disability || ""),
+                          nextOfKinName: String(s.nextOfKinName || ""),
+                          nextOfKinAddress: String(s.nextOfKinAddress || ""),
+                          nextOfKinPhone: String(s.nextOfKinPhone || ""),
+                          nextOfKinEmail: String(s.nextOfKinEmail || ""),
+                          nextOfKinRelationship: String(s.nextOfKinRelationship || ""),
+                          avatarDataUrl: String(s.avatarDataUrl || ""),
+                        }));
+                        try {
+                          await fetch("/api/students", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload),
+                          });
+                        } catch {}
+                        // Merge into local list as well for immediate UI
                         const key = (s: Student) => `${(s.regNo || "").toString().trim().toLowerCase()}|${(s.programme || "").toString().trim().toLowerCase()}`;
-                        const existingKeys = new Set<string>(
-                          students.map((s) => key(s))
-                        );
+                        const existingKeys = new Set<string>(students.map((s) => key(s)));
                         const toAdd: Student[] = [];
-                        for (const s of preview) {
+                        for (const s of payload) {
                           const k = key(s);
-                          // Skip if same RegNo already exists in the same Programme
-                          if (s.regNo && s.programme && existingKeys.has(k)) {
-                            continue;
-                          }
-                          if (s.regNo && s.programme) existingKeys.add(k);
+                          if (existingKeys.has(k)) continue;
+                          existingKeys.add(k);
                           toAdd.push(s);
                         }
                         const next = [...students, ...toAdd];
