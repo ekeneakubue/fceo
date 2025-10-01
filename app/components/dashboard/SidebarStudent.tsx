@@ -19,16 +19,63 @@ export default function SidebarStudent() {
   const [avatarSrc, setAvatarSrc] = useState<string>("/images/fceo-logo.jpg");
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("fceo.currentUser");
-      if (raw) {
-        const u = JSON.parse(raw);
-        const name = u?.fullName || u?.email || u?.regNo || "Student";
-        const av = u?.avatarDataUrl || "/images/fceo-logo.jpg";
-        setDisplayName(name);
-        setAvatarSrc(av);
-      }
-    } catch {}
+    (async () => {
+      try {
+        // Seed defaults from local storage
+        let regKey = "";
+        try {
+          const raw = localStorage.getItem("fceo.currentUser");
+          if (raw) {
+            const u = JSON.parse(raw);
+            regKey = (u?.regNo || "").toString().trim().toLowerCase();
+            const seedName = u?.fullName || u?.email || u?.regNo || "Student";
+            const seedAvatar = u?.avatarDataUrl || "/images/fceo-logo.jpg";
+            setDisplayName(seedName);
+            setAvatarSrc(seedAvatar);
+          }
+        } catch {}
+
+        if (!regKey) return;
+
+        // Prefer DB record for canonical name/avatar
+        try {
+          const list = await fetch("/api/students", { cache: "no-store" }).then((r) => r.json());
+          if (Array.isArray(list)) {
+            const row = list.find((s: any) => (s?.regNo || "").toString().trim().toLowerCase() === regKey);
+            if (row) {
+              const nameParts = [row?.firstName, row?.middleName, row?.surname].filter(Boolean);
+              const pretty = nameParts.length ? nameParts.join(" ") : (row?.email || row?.regNo || "Student");
+              setDisplayName(pretty);
+              if (row?.avatarDataUrl) setAvatarSrc(row.avatarDataUrl);
+            }
+          }
+        } catch {}
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    const handleProfileUpdated = (e: Event) => {
+      try {
+        const ce = e as CustomEvent;
+        const updated = (ce.detail as any)?.updated || null;
+        if (updated) {
+          const name = updated.fullName || updated.email || updated.regNo || "Student";
+          setDisplayName(name);
+          if (updated.avatarDataUrl) setAvatarSrc(updated.avatarDataUrl);
+        } else {
+          const raw = localStorage.getItem("fceo.currentUser");
+          if (raw) {
+            const u = JSON.parse(raw);
+            const name2 = u?.fullName || u?.email || u?.regNo || "Student";
+            setDisplayName(name2);
+            if (u?.avatarDataUrl) setAvatarSrc(u.avatarDataUrl);
+          }
+        }
+      } catch {}
+    };
+    window.addEventListener("fceo:profile-updated", handleProfileUpdated as EventListener);
+    return () => window.removeEventListener("fceo:profile-updated", handleProfileUpdated as EventListener);
   }, []);
   return (
     <aside className="h-screen sticky top-0 w-64 bg-white/90 dark:bg-black/30 border-r border-black/[.08] dark:border-white/[.14] p-4 hidden md:flex md:flex-col">

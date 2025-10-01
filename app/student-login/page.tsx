@@ -68,14 +68,19 @@ export default function StudentLoginPage() {
                   setError("Student not found");
                   return;
                 }
+                const fullName = [match.firstName, match.middleName, match.surname]
+                  .filter(Boolean)
+                  .join(" ")
+                  .trim() || match.regNo;
                 const current = {
                   id: match.id || "local-student",
-                  fullName: [match.firstName, match.middleName, match.surname].filter(Boolean).join(" ") || match.regNo,
+                  fullName,
                   email: match.email || undefined,
                   regNo: match.regNo,
+                  programme: match.programme || undefined,
                   roleKey: undefined,
                   roleLabel: "Student",
-                  avatarDataUrl: null,
+                  avatarDataUrl: match.avatarDataUrl || undefined,
                 };
                 try { localStorage.setItem("fceo.currentUser", JSON.stringify(current)); } catch {}
                 router.push("/dashboard/student");

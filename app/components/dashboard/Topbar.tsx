@@ -1,12 +1,14 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Topbar({ displayName }: { displayName?: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [name, setName] = useState<string>("Super Admin");
   const [avatarSrc, setAvatarSrc] = useState<string>("/images/fceo-logo.jpg");
+  const isStudent = typeof pathname === "string" && pathname.startsWith("/dashboard/student");
 
   const handleLogout = () => {
     try {
@@ -70,10 +72,14 @@ export default function Topbar({ displayName }: { displayName?: string }) {
     <div className="w-full border-b border-black/[.08] dark:border-white/[.14] bg-white/70 dark:bg-white/5 px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-40">
       <div className="text-sm md:text-base font-medium">Dashboard</div>
       <div className="flex items-center gap-3">
-        <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10">
-          <Image src={avatarSrc} alt="User avatar" fill className="object-cover" />
-        </div>
-        <span className="hidden sm:block text-sm font-medium">{displayName || name}</span>
+        {!isStudent && (
+          <>
+            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10">
+              <Image src={avatarSrc} alt="User avatar" fill className="object-cover" />
+            </div>
+            <span className="hidden sm:block text-sm font-medium">{displayName || name}</span>
+          </>
+        )}
         <button
           onClick={handleLogout}
           className="text-sm px-3 py-2 rounded border border-black/[.12] dark:border-white/[.18] hover:bg-black/[.04] dark:hover:bg-white/[.08]"
