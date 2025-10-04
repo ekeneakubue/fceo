@@ -23,9 +23,23 @@ export default function UsersPage() {
   const [password, setPassword] = useState("");
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [showModalPwd, setShowModalPwd] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string>("");
+  const [saving, setSaving] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch("/api/demo-users").then(async (r) => setUsers(await r.json())).catch(() => {});
+    setLoading(true);
+    fetch("/api/demo-users")
+      .then(async (r) => {
+        const data = await r.json();
+        setUsers(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -37,22 +51,58 @@ export default function UsersPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Users</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database <code>fceo.users</code>.</p>
+              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database <code>DemoUser</code> on Railway.</p>
             </div>
-            <button
-              onClick={() => {
-                setEditIndex(-1);
-                setFullName("");
-                setEmail("");
-                setRoleKey("LECTURER");
-                setAvatarDataUrl(undefined);
-                setPassword("");
-                setShowAdd(true);
-              }}
-              className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
-            >
-              Add user
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const raw = localStorage.getItem("fceo.users") || localStorage.getItem("fceo.demoUsers");
+                    const usersLs = raw ? JSON.parse(raw) : [];
+                    if (Array.isArray(usersLs) && usersLs.length > 0) {
+                      await fetch("/api/sync", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ users: usersLs }),
+                      });
+                      const refreshed = await fetch("/api/demo-users").then((r) => r.json());
+                      setUsers(refreshed);
+                    }
+                  } catch (error) {
+                    console.error("Error syncing users:", error);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="h-10 px-4 rounded border border-black/20 text-sm bg-white/70 dark:bg-white/5"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-3 w-3 border border-black/20 border-t-black/60"></div>
+                    Syncing...
+                  </div>
+                ) : (
+                  "Publish Local Users"
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setEditIndex(-1);
+                  setFullName("");
+                  setEmail("");
+                  setRoleKey("LECTURER");
+                  setAvatarDataUrl(undefined);
+                  setPassword("");
+                  setShowAdd(true);
+                }}
+                className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
+              >
+                Add user
+              </button>
+            </div>
           </div>
 
           {showAdd && (
@@ -63,52 +113,66 @@ export default function UsersPage() {
             >
               <form
                 className="w-[95%] max-w-2xl grid gap-4 md:grid-cols-2 rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white dark:bg-zinc-900 p-5"
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  const newUser: StoredUser = {
-                    fullName,
-                    email,
-                    roleKey,
-                    roleLabel: roleKey
-                      .toLowerCase()
-                      .split("_")
-                      .map((s) => s[0].toUpperCase() + s.slice(1))
-                      .join(" "),
-                    avatarDataUrl,
-                    password,
-                  };
-                  if (editIndex >= 0 && (users[editIndex] as any)?.id) {
-                    const id = (users[editIndex] as any).id as string;
-                    fetch("/api/demo-users", {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ id, ...newUser }),
-                    })
-                      .then(async (r) => {
-                        const updated = await r.json();
-                        const nextUsers = users.map((u, i) => (i === editIndex ? updated : u));
-                        setUsers(nextUsers);
-                      })
-                      .catch(() => {});
-                  } else {
-                    fetch("/api/demo-users", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(newUser),
-                    })
-                      .then(async (r) => {
-                        const created = await r.json();
-                        setUsers([...users, created]);
-                      })
-                      .catch(() => {});
+                  setStatusMsg("");
+                  setSaving(true);
+                  try {
+                    const newUser: StoredUser = {
+                      fullName,
+                      email,
+                      roleKey,
+                      roleLabel: roleKey
+                        .toLowerCase()
+                        .split("_")
+                        .map((s) => s[0].toUpperCase() + s.slice(1))
+                        .join(" "),
+                      avatarDataUrl,
+                      password,
+                    };
+                    let createdOrUpdated: any = null;
+                    if (editIndex >= 0 && (users[editIndex] as any)?.id) {
+                      const id = (users[editIndex] as any).id as string;
+                      const res = await fetch("/api/demo-users", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id, ...newUser }),
+                      });
+                      if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.error || "Failed to update user");
+                      }
+                      createdOrUpdated = await res.json();
+                      const nextUsers = users.map((u, i) => (i === editIndex ? createdOrUpdated : u));
+                      setUsers(nextUsers);
+                    } else {
+                      const res = await fetch("/api/demo-users", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(newUser),
+                      });
+                      if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.error || "Failed to create user");
+                      }
+                      createdOrUpdated = await res.json();
+                      setUsers([...users, createdOrUpdated]);
+                    }
+                    setStatusMsg("User saved to database");
+                    setShowAdd(false);
+                    setFullName("");
+                    setEmail("");
+                    setRoleKey("LECTURER");
+                    setAvatarDataUrl(undefined);
+                    setPassword("");
+                    setEditIndex(-1);
+                  } catch (err: any) {
+                    console.error("Error saving user:", err);
+                    setStatusMsg(err?.message || "Failed to save user");
+                  } finally {
+                    setSaving(false);
+                    setTimeout(() => setStatusMsg(""), 2500);
                   }
-                  setFullName("");
-                  setEmail("");
-                  setRoleKey("LECTURER");
-                  setAvatarDataUrl(undefined);
-                  setPassword("");
-                  setEditIndex(-1);
-                  setShowAdd(false);
                 }}
               >
                 <div className="md:col-span-2 text-lg font-semibold">{editIndex >= 0 ? "Edit user" : "Add user"}</div>
@@ -190,7 +254,8 @@ export default function UsersPage() {
                     </div>
                   )}
                 </div>
-                <div className="md:col-span-2 flex items-center justify-end gap-2">
+                <div className="md:col-span-2 flex items-center justify-between gap-2">
+                  <div className="text-xs text-black/70 dark:text-white/70">{statusMsg}</div>
                   <button
                     type="button"
                     onClick={() => setShowAdd(false)}
@@ -198,7 +263,7 @@ export default function UsersPage() {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  <button type="submit" disabled={saving} className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">{saving ? "Saving..." : "Save"}</button>
                 </div>
               </form>
             </div>
@@ -218,9 +283,18 @@ export default function UsersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/10 dark:divide-white/10">
-                  {users.length === 0 ? (
+                  {loading ? (
                     <tr>
-                      <td className="px-4 py-4" colSpan={5}>No users in storage. Add some to localStorage under <code>fceo.users</code>.</td>
+                      <td className="px-4 py-8" colSpan={5}>
+                        <div className="flex items-center justify-center gap-2 text-black/60 dark:text-white/60">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-black/20 border-t-black/60"></div>
+                          Fetching users...
+                        </div>
+                      </td>
+                    </tr>
+                  ) : users.length === 0 ? (
+                    <tr>
+                      <td className="px-4 py-4" colSpan={5}>No users found. Click "Add user" to create a new user.</td>
                     </tr>
                   ) : (
                     users.map((u, idx) => (

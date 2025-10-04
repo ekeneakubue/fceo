@@ -89,6 +89,7 @@ export default function Navbar() {
             </div>
           </div>
           <Link href="/ict" className="hover:text-black/70">ICT Center</Link>
+          <Link href="/gallery" className="hover:text-black/70">Gallery</Link>
           <Link href="/news" className="hover:text-black/70">News</Link>
           <Link href="/student-login" className="border px-4 py-2 rounded hover:bg-white hover:text-[rgb(3,158,29)] transition">Portal</Link>
         </div>
@@ -122,6 +123,7 @@ export default function Navbar() {
           )}
           <Link href="/admission" onClick={toggleNavbar}>Admission</Link>
           <Link href="/ict" onClick={toggleNavbar}>ICT Center</Link>
+          <Link href="/gallery" onClick={toggleNavbar}>Gallery</Link>
           <Link href="/news" onClick={toggleNavbar}>News</Link>
           <Link href="/dashboard/super-admin" onClick={toggleNavbar} className="border px-4 py-2 rounded self-center w-1/2 text-center">Portal</Link>
         </div>
