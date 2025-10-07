@@ -34,11 +34,20 @@ export default function GalleryAdminPage() {
     setLoading(true);
     fetch("/api/gallery")
       .then(async (r) => {
-        const data = await r.json();
-        setItems(data);
+        if (!r.ok) {
+          throw new Error(`HTTP error! status: ${r.status}`);
+        }
+        let data: any = [];
+        try {
+          data = await r.json();
+        } catch (err) {
+          data = [];
+        }
+        setItems(Array.isArray(data) ? data : []);
       })
       .catch((error) => {
         console.error("Error fetching gallery:", error);
+        setItems([]);
       })
       .finally(() => {
         setLoading(false);
@@ -113,12 +122,28 @@ export default function GalleryAdminPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(item),
-        }).then((r) => r.json())
+        }).then(async (r) => {
+          // Gracefully handle non-OK responses without throwing
+          if (!r.ok) {
+            return null;
+          }
+          try {
+            return await r.json();
+          } catch (err) {
+            return null;
+          }
+        })
       );
 
       const createdItems = await Promise.all(uploadPromises);
-      const next = [...items, ...createdItems];
+      const successful = createdItems.filter(Boolean) as GalleryItem[];
+      const failedCount = createdItems.length - successful.length;
+      const next = [...items, ...successful];
       persist(next);
+      if (failedCount > 0) {
+        console.warn(`Some uploads failed: ${failedCount} item(s). Database may be unavailable.`);
+        alert(`Some uploads failed (${failedCount}). Please try again later.`);
+      }
       setShowAdd(false);
       setTitle("");
       setDate("");

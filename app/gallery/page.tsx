@@ -29,11 +29,20 @@ export default function GalleryPage() {
     setLoading(true);
     fetch("/api/gallery")
       .then(async (r) => {
-        const data = await r.json();
-        setItems(data);
+        if (!r.ok) {
+          throw new Error(`HTTP error! status: ${r.status}`);
+        }
+        let data: any = [];
+        try {
+          data = await r.json();
+        } catch (err) {
+          data = [];
+        }
+        setItems(Array.isArray(data) ? data : []);
       })
       .catch((error) => {
         console.error("Error fetching gallery:", error);
+        setItems([]); // Set empty array on error
       })
       .finally(() => {
         setLoading(false);

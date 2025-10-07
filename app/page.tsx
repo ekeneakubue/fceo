@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Link from "next/link";
@@ -8,9 +8,40 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 export default function Home() {
+  type GalleryItem = {
+    id?: string;
+    title?: string;
+    imageDataUrl: string;
+    date?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+
   useEffect(() => {
     AOS.init({ duration: 1000 });
     AOS.refresh();
+  }, []);
+
+  useEffect(() => {
+    setGalleryLoading(true);
+    fetch("/api/gallery")
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        let data: any = [];
+        try {
+          data = await r.json();
+        } catch {
+          data = [];
+        }
+        setGalleryItems(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setGalleryItems([]);
+      })
+      .finally(() => setGalleryLoading(false));
   }, []);
   return (
     <div>
@@ -92,6 +123,35 @@ export default function Home() {
           ))}
         </div>
       </section>
+      {/* Gallery preview */}
+      {(!galleryLoading && galleryItems.length > 0) && (
+        <section className="max-w-6xl mx-auto px-6 pb-16">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl md:text-3xl font-semibold">Gallery</h2>
+            <Link href="/gallery" className="text-sm text-[rgb(3,158,29)] hover:underline">View all</Link>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {galleryItems.slice(0, 8).map((img, idx) => (
+              <div key={img.id || idx} className="group relative rounded-xl overflow-hidden border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5">
+                <div className="aspect-video bg-black/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.imageDataUrl}
+                    alt={img.title || `Gallery image ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-3">
+                  <div className="flex items-center justify-between text-xs text-black/60 dark:text-white/60">
+                    <span className="truncate max-w-[70%]">{img.title || "Untitled"}</span>
+                    <span>{img.createdAt && new Date(img.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       <Footer />
     </div>
   );
