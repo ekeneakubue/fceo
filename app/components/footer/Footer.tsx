@@ -63,7 +63,7 @@ export default function Footer() {
             <p>kingsleyezeme1@gmail.com</p>
             <div className="flex gap-4">
               <Link href="/staff-login"> <div className="mt-4 w-[100px] px-2 py-2 rounded border border-[#d6d3d3] text-center text-[#d6d3d3]">Admin</div></Link>
-              <a href="https://wghp7.wghservers.com:2096/webmaillogout.cgi" target="_blank"> <div className="mt-4 w-[100px] px-2 py-2 rounded border border-[#d6d3d3] text-center text-[#d6d3d3]">Webmail</div></a>
+              <a href="https://wghp7.wghservers.com:2096/webmaillogout.cgi" target="_blank" className="mt-4 w-[100px] px-2 py-2 rounded border border-[#d6d3d3] text-center text-[#d6d3d3]">Webmail</a>
             </div>
             <br />
             
