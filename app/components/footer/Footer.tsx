@@ -60,7 +60,7 @@ export default function Footer() {
             <h3 className="text-white text-lg mb-2">Contacts</h3>
             <p>OFEME-OHUHU, PMB 7324, umuahia north LGA, Abia state, Nigeria.</p>
             <p>+234 8085 069 125</p>
-            <p>kingsleyezeme1@gmail.com</p>
+            <p>info@fceofemeohuhu.edu.ng</p>
             <div className="flex gap-4">
               <Link href="/staff-login"> <div className="mt-4 w-[100px] px-2 py-2 rounded border border-[#d6d3d3] text-center text-[#d6d3d3]">Admin</div></Link>
               <a href="https://wghp7.wghservers.com:2096/webmaillogout.cgi" target="_blank" className="mt-4 w-[100px] px-2 py-2 rounded border border-[#d6d3d3] text-center text-[#d6d3d3]">Webmail</a>
