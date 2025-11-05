@@ -91,11 +91,19 @@ export default function Home() {
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="rounded-xl border border-black/[.08] dark:border-white/[.145] p-6 bg-white/70 dark:bg-white/5">
               <h3 className="font-semibold text-lg">Mission</h3>
-              <p className="mt-2 text-sm text-black/80 dark:text-white/80">To educate and inspire through excellence in teacher education, research, and service.</p>
+              <p className="mt-2 text-sm text-black/80 dark:text-white/80">
+                Our mission is to be a leading teacher educational institution where our teaching is rooted in competence, 
+                research and exemplary character of our staff so students can enter the workforce with innovative skills, 
+                knowledge and confidence in their chosen fields.
+              </p>
             </div>
             <div className="rounded-xl border border-black/[.08] dark:border-white/[.145] p-6 bg-white/70 dark:bg-white/5">
               <h3 className="font-semibold text-lg">Vision</h3>
-              <p className="mt-2 text-sm text-black/80 dark:text-white/80">To be a transformative hub where educators lead change in classrooms and communities.</p>
+              <p className="mt-2 text-sm text-black/80 dark:text-white/80">
+                Our vision is to develop well-rounded, confident and responsible individuals who aspire to achieve their full 
+                potentials. We will do this by providing a welcoming, happy, safe and supportive learning environment in which 
+                everyone is equal and all achievements are celebrated. 
+              </p>
             </div>
           </div>
         </div>
@@ -104,8 +112,8 @@ export default function Home() {
             <h3 className="font-semibold text-lg">Fast Facts</h3>
             <ul className="mt-3 text-sm space-y-2 text-black/80 dark:text-white/80">
               <li>• 10+ academic programmes</li>
-              <li>• 4,000+ students</li>
-              <li>• 150+ faculty & staff</li>
+              <li>• 200+ students</li>
+              <li>• 300+ staff</li>
               <li>• Active community partnerships</li>
             </ul>
           </div>

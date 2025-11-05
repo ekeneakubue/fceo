@@ -1,4 +1,5 @@
 const { PrismaClient, RoleKey } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 async function main() {
   const prisma = new PrismaClient();
@@ -6,6 +7,7 @@ async function main() {
     const email = "super@fceo.local";
     const regNo = "FCEO/ADMIN/0001";
     const password = "admin123"; // demo only
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const existingByEmail = await prisma.demoUser.findFirst({ where: { email } });
     const existingByReg = await prisma.demoUser.findFirst({ where: { regNo } });
@@ -17,7 +19,7 @@ async function main() {
       roleKey: RoleKey.SUPER_ADMIN,
       roleLabel: "Super Admin",
       avatarDataUrl: null,
-      password,
+      password: hashedPassword,
     };
 
     if (existingByEmail || existingByReg) {

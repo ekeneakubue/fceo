@@ -29,7 +29,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/demo-users")
+    fetch("/api/users")
       .then(async (r) => {
         const data = await r.json();
         setUsers(data);
@@ -51,7 +51,7 @@ export default function UsersPage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Users</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database <code>DemoUser</code> on Railway.</p>
+              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database <code>User</code> on Neon.</p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -67,7 +67,7 @@ export default function UsersPage() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ users: usersLs }),
                       });
-                      const refreshed = await fetch("/api/demo-users").then((r) => r.json());
+                      const refreshed = await fetch("/api/users").then((r) => r.json());
                       setUsers(refreshed);
                     }
                   } catch (error) {
@@ -133,7 +133,7 @@ export default function UsersPage() {
                     let createdOrUpdated: any = null;
                     if (editIndex >= 0 && (users[editIndex] as any)?.id) {
                       const id = (users[editIndex] as any).id as string;
-                      const res = await fetch("/api/demo-users", {
+                      const res = await fetch("/api/users", {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ id, ...newUser }),
@@ -146,7 +146,7 @@ export default function UsersPage() {
                       const nextUsers = users.map((u, i) => (i === editIndex ? createdOrUpdated : u));
                       setUsers(nextUsers);
                     } else {
-                      const res = await fetch("/api/demo-users", {
+                      const res = await fetch("/api/users", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(newUser),
@@ -226,6 +226,7 @@ export default function UsersPage() {
                   >
                     <option value="SUPER_ADMIN">Super Admin</option>
                     <option value="ADMIN">Admin</option>
+                    <option value="PRINCIPAL_OFFICER">Principal Officer</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
                   </select>
@@ -337,7 +338,7 @@ export default function UsersPage() {
                                   setUsers(nextUsers);
                                   return;
                                 }
-                                fetch(`/api/demo-users?id=${encodeURIComponent(String(id))}`, { method: "DELETE" })
+                                fetch(`/api/users?id=${encodeURIComponent(String(id))}`, { method: "DELETE" })
                                   .then(() => {
                                     const nextUsers = users.filter((_, i) => i !== idx);
                                     setUsers(nextUsers);

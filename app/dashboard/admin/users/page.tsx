@@ -254,6 +254,7 @@ export default function AdminUsersPage() {
                     onChange={(e) => setRoleKey(e.target.value)}
                   >
                     <option value="ADMIN">Admin</option>
+                    <option value="PRINCIPAL_OFFICER">Principal Officer</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
                   </select>
@@ -378,6 +379,7 @@ export default function AdminUsersPage() {
                     onChange={(e) => setRoleKey(e.target.value)}
                   >
                     <option value="ADMIN">Admin</option>
+                    <option value="PRINCIPAL_OFFICER">Principal Officer</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
                   </select>

@@ -5,17 +5,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// prisma/schema.prisma
 datasource db {
-  // Railway: use PostgreSQL via DATABASE_URL in production
-  // SQLite for local development when Railway is unavailable
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL") 
 }
 
 // Stable role keys to reference in code and seeding
 enum RoleKey {
   SUPER_ADMIN
   ADMIN
+  PRINCIPAL_OFFICER
   LECTURER
   PARENT
   STAFF
