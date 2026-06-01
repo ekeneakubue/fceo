@@ -3,23 +3,28 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      regNo: true,
-      roleKey: true,
-      roleLabel: true,
-      avatarDataUrl: true,
-      isActive: true,
-      lastLoginAt: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-  return NextResponse.json(users);
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        regNo: true,
+        roleKey: true,
+        roleLabel: true,
+        avatarDataUrl: true,
+        isActive: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return NextResponse.json(users);
+  } catch (error: any) {
+    console.error("Error fetching users:", error);
+    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {

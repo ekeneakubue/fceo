@@ -31,8 +31,17 @@ export default function UsersPage() {
     setLoading(true);
     fetch("/api/users")
       .then(async (r) => {
-        const data = await r.json();
-        setUsers(data);
+        if (!r.ok) {
+          setUsers([]);
+          return;
+        }
+        let data: any = [];
+        try {
+          data = await r.json();
+        } catch {
+          data = [];
+        }
+        setUsers(Array.isArray(data) ? data : []);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
@@ -67,8 +76,16 @@ export default function UsersPage() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ users: usersLs }),
                       });
-                      const refreshed = await fetch("/api/users").then((r) => r.json());
-                      setUsers(refreshed);
+                      const refreshedRes = await fetch("/api/users");
+                      if (refreshedRes.ok) {
+                        let refreshed: any = [];
+                        try {
+                          refreshed = await refreshedRes.json();
+                        } catch {
+                          refreshed = [];
+                        }
+                        setUsers(Array.isArray(refreshed) ? refreshed : []);
+                      }
                     }
                   } catch (error) {
                     console.error("Error syncing users:", error);
