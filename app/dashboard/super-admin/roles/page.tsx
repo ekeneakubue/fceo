@@ -1,19 +1,20 @@
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
+import { PageHeader, Panel } from "../../../components/dashboard/DashboardUI";
 
 export default function RolesPage() {
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-        <h1 className="text-2xl md:text-3xl font-semibold">Roles &amp; Permissions</h1>
-        <p className="text-black/80 dark:text-white/80 mt-2">Define roles and permission policies.</p>
+    <>
+      <PageHeader
+        title="Roles & Permissions"
+        description="Define roles and permission policies for staff across the institution."
+      />
+      <Panel title="Role Management">
+        <div className="p-8 text-center text-slate-500">
+          <p className="text-sm">Role policy configuration will be available here.</p>
+          <p className="text-xs mt-2 text-slate-400">
+            Current roles include Super Admin, Admin, Director, Dean, HoD, Principal Officer, Lecturer, Staff, and Parent.
+          </p>
         </div>
-      </main>
-    </div>
+      </Panel>
+    </>
   );
 }
-
-

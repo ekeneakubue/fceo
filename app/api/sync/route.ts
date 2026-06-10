@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { users, students, news, gallery } = body || {};
 
-    // DemoUser sync
+    // User sync
     if (Array.isArray(users)) {
       for (const u of users) {
-        await prisma.demoUser.upsert({
+        await prisma.user.upsert({
           where: { email: u.email || undefined },
           update: {
             fullName: u.fullName,

@@ -1,6 +1,4 @@
 "use client";
-import SidebarStudent from "../../../components/dashboard/SidebarStudent";
-import Topbar from "../../../components/dashboard/Topbar";
 import { useEffect, useState } from "react";
 
 export default function StudentProfilePage() {
@@ -83,12 +81,8 @@ export default function StudentProfilePage() {
   }, [profile?.regNo]);
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <SidebarStudent />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <h1 className="text-2xl md:text-3xl font-semibold">Profile</h1>
+    <>
+<h1 className="text-2xl md:text-3xl font-semibold">Profile</h1>
           {!profile ? (
             <div className="mt-6 text-sm">No profile found.</div>
           ) : (
@@ -145,7 +139,7 @@ export default function StudentProfilePage() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
+                    className="dash-btn-primary h-10 px-4 text-sm"
                   >
                     Update Profile
                   </button>
@@ -180,7 +174,7 @@ export default function StudentProfilePage() {
                         } catch {}
                         setIsEditing(false);
                       }}
-                      className="h-10 px-4 rounded border border-black/20 text-sm"
+                      className="dash-btn-secondary h-10 px-4 text-sm"
                     >
                       Cancel
                     </button>
@@ -212,7 +206,7 @@ export default function StudentProfilePage() {
                           }
                         } catch {}
                       }}
-                      className="h-10 px-4 rounded border border-black/20 text-sm"
+                      className="dash-btn-secondary h-10 px-4 text-sm"
                     >
                       Reset
                     </button>
@@ -279,35 +273,35 @@ export default function StudentProfilePage() {
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Permanent Address</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Residential Address</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={residentialAddress} onChange={(e) => setResidentialAddress(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={residentialAddress} onChange={(e) => setResidentialAddress(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Phone</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Email</label>
-                    <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} />
+                    <input type="email" className="dash-input" disabled={!isEditing} value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Home Town</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={homeTown} onChange={(e) => setHomeTown(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={homeTown} onChange={(e) => setHomeTown(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Local Government</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={lga} onChange={(e) => setLga(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={lga} onChange={(e) => setLga(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">State</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Date of Birth</label>
-                    <input type="date" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                    <input type="date" className="dash-input" disabled={!isEditing} value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -317,15 +311,15 @@ export default function StudentProfilePage() {
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
                     <label className="block text-xs mb-1">Blood Group</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Genotype</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={genotype} onChange={(e) => setGenotype(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={genotype} onChange={(e) => setGenotype(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Disability</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={disability} onChange={(e) => setDisability(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={disability} onChange={(e) => setDisability(e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -335,35 +329,34 @@ export default function StudentProfilePage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="block text-xs mb-1">Name</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={nokName} onChange={(e) => setNokName(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={nokName} onChange={(e) => setNokName(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Relationship</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={nokRelationship} onChange={(e) => setNokRelationship(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={nokRelationship} onChange={(e) => setNokRelationship(e.target.value)} />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-xs mb-1">Address</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={nokAddress} onChange={(e) => setNokAddress(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={nokAddress} onChange={(e) => setNokAddress(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Phone</label>
-                    <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={nokPhone} onChange={(e) => setNokPhone(e.target.value)} />
+                    <input className="dash-input" disabled={!isEditing} value={nokPhone} onChange={(e) => setNokPhone(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-xs mb-1">Email</label>
-                    <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" disabled={!isEditing} value={nokEmail} onChange={(e) => setNokEmail(e.target.value)} />
+                    <input type="email" className="dash-input" disabled={!isEditing} value={nokEmail} onChange={(e) => setNokEmail(e.target.value)} />
                   </div>
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2">
                 {isEditing && (
-                  <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save</button>
                 )}
               </div>
               {message && <div className="text-sm text-green-700">{message}</div>}
             </form>
           )}
-        </div>
         {isModalOpen && (
           <div className="fixed inset-0 z-50">
             <div
@@ -548,35 +541,35 @@ export default function StudentProfilePage() {
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Permanent Address</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
+                        <input className="dash-input" value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Residential Address</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={residentialAddress} onChange={(e) => setResidentialAddress(e.target.value)} />
+                        <input className="dash-input" value={residentialAddress} onChange={(e) => setResidentialAddress(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Phone</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        <input className="dash-input" value={phone} onChange={(e) => setPhone(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Email</label>
-                        <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} />
+                        <input type="email" className="dash-input" value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Home Town</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={homeTown} onChange={(e) => setHomeTown(e.target.value)} />
+                        <input className="dash-input" value={homeTown} onChange={(e) => setHomeTown(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">State</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
+                        <input className="dash-input" value={stateVal} onChange={(e) => setStateVal(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Local Government</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={lga} onChange={(e) => setLga(e.target.value)} />
+                        <input className="dash-input" value={lga} onChange={(e) => setLga(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Date of Birth</label>
-                        <input type="date" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                        <input type="date" className="dash-input" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
                       </div>
                     </div>
                   </div>
@@ -586,15 +579,15 @@ export default function StudentProfilePage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div>
                         <label className="block text-xs mb-1">Blood Group</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
+                        <input className="dash-input" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Genotype</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={genotype} onChange={(e) => setGenotype(e.target.value)} />
+                        <input className="dash-input" value={genotype} onChange={(e) => setGenotype(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Disability</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={disability} onChange={(e) => setDisability(e.target.value)} />
+                        <input className="dash-input" value={disability} onChange={(e) => setDisability(e.target.value)} />
                       </div>
                     </div>
                   </div>
@@ -604,37 +597,36 @@ export default function StudentProfilePage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
                         <label className="block text-xs mb-1">Name</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokName} onChange={(e) => setNokName(e.target.value)} />
+                        <input className="dash-input" value={nokName} onChange={(e) => setNokName(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Relationship</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokRelationship} onChange={(e) => setNokRelationship(e.target.value)} />
+                        <input className="dash-input" value={nokRelationship} onChange={(e) => setNokRelationship(e.target.value)} />
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-xs mb-1">Address</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokAddress} onChange={(e) => setNokAddress(e.target.value)} />
+                        <input className="dash-input" value={nokAddress} onChange={(e) => setNokAddress(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Phone</label>
-                        <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokPhone} onChange={(e) => setNokPhone(e.target.value)} />
+                        <input className="dash-input" value={nokPhone} onChange={(e) => setNokPhone(e.target.value)} />
                       </div>
                       <div>
                         <label className="block text-xs mb-1">Email</label>
-                        <input type="email" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={nokEmail} onChange={(e) => setNokEmail(e.target.value)} />
+                        <input type="email" className="dash-input" value={nokEmail} onChange={(e) => setNokEmail(e.target.value)} />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-end gap-2">
-                    <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                    <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save</button>
                   </div>
                 </form>
               </div>
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }
 

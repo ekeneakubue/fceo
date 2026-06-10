@@ -1,19 +1,17 @@
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
+import { PageHeader, Panel } from "../../../components/dashboard/DashboardUI";
 
 export default function WidgetsPage() {
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-        <h1 className="text-2xl md:text-3xl font-semibold">Dashboard Widgets</h1>
-        <p className="text-black/80 dark:text-white/80 mt-2">Configure dashboard components.</p>
+    <>
+      <PageHeader
+        title="Dashboard Widgets"
+        description="Configure role-scoped dashboard cards, links, and stats shown to each user type."
+      />
+      <Panel title="Widget Configuration">
+        <div className="p-8 text-center text-slate-500">
+          <p className="text-sm">Widget ordering and visibility controls will be available here.</p>
         </div>
-      </main>
-    </div>
+      </Panel>
+    </>
   );
 }
-
-

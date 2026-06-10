@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
+import { formatRoleLabel } from "@/lib/roles";
 
 type StoredUser = {
   id?: string;
@@ -26,41 +25,49 @@ export default function UsersPage() {
   const [statusMsg, setStatusMsg] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const r = await fetch("/api/users", { cache: "no-store" });
+      let data: any = null;
+      try {
+        data = await r.json();
+      } catch {
+        data = null;
+      }
+      if (!r.ok) {
+        setUsers([]);
+        setFetchError(data?.error || `Failed to load users (${r.status})`);
+        return;
+      }
+      if (!Array.isArray(data)) {
+        setUsers([]);
+        setFetchError("Unexpected response from server.");
+        return;
+      }
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setUsers([]);
+      setFetchError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    fetch("/api/users")
-      .then(async (r) => {
-        if (!r.ok) {
-          setUsers([]);
-          return;
-        }
-        let data: any = [];
-        try {
-          data = await r.json();
-        } catch {
-          data = [];
-        }
-        setUsers(Array.isArray(data) ? data : []);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    loadUsers();
   }, []);
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between gap-3">
+    <>
+<div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Users</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database <code>User</code> on Neon.</p>
+              <p className="text-slate-600 mt-2">Fetched from database <code>User</code> on Neon.</p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -76,16 +83,7 @@ export default function UsersPage() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ users: usersLs }),
                       });
-                      const refreshedRes = await fetch("/api/users");
-                      if (refreshedRes.ok) {
-                        let refreshed: any = [];
-                        try {
-                          refreshed = await refreshedRes.json();
-                        } catch {
-                          refreshed = [];
-                        }
-                        setUsers(Array.isArray(refreshed) ? refreshed : []);
-                      }
+                      await loadUsers();
                     }
                   } catch (error) {
                     console.error("Error syncing users:", error);
@@ -93,7 +91,7 @@ export default function UsersPage() {
                     setLoading(false);
                   }
                 }}
-                className="h-10 px-4 rounded border border-black/20 text-sm bg-white/70 dark:bg-white/5"
+                className="dash-btn-secondary h-10 px-4 text-sm"
                 disabled={loading}
               >
                 {loading ? (
@@ -115,7 +113,7 @@ export default function UsersPage() {
                   setPassword("");
                   setShowAdd(true);
                 }}
-                className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
+                className="dash-btn-primary h-10 px-4 text-sm"
               >
                 Add user
               </button>
@@ -139,11 +137,7 @@ export default function UsersPage() {
                       fullName,
                       email,
                       roleKey,
-                      roleLabel: roleKey
-                        .toLowerCase()
-                        .split("_")
-                        .map((s) => s[0].toUpperCase() + s.slice(1))
-                        .join(" "),
+                      roleLabel: formatRoleLabel(roleKey),
                       avatarDataUrl,
                       password,
                     };
@@ -176,6 +170,22 @@ export default function UsersPage() {
                       setUsers([...users, createdOrUpdated]);
                     }
                     setStatusMsg("User saved to database");
+                    try {
+                      const raw = localStorage.getItem("fceo.currentUser");
+                      if (raw && createdOrUpdated?.email) {
+                        const current = JSON.parse(raw);
+                        if (
+                          String(current?.email || "").toLowerCase() ===
+                          String(createdOrUpdated.email).toLowerCase()
+                        ) {
+                          const merged = { ...current, ...createdOrUpdated };
+                          localStorage.setItem("fceo.currentUser", JSON.stringify(merged));
+                          window.dispatchEvent(
+                            new CustomEvent("fceo:user-updated", { detail: { user: merged } })
+                          );
+                        }
+                      }
+                    } catch {}
                     setShowAdd(false);
                     setFullName("");
                     setEmail("");
@@ -196,7 +206,7 @@ export default function UsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Full name</label>
                   <input
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -228,7 +238,7 @@ export default function UsersPage() {
                   <label className="block text-xs mb-1">Email</label>
                   <input
                     type="email"
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -237,13 +247,17 @@ export default function UsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Role</label>
                   <select
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={roleKey}
                     onChange={(e) => setRoleKey(e.target.value)}
                   >
                     <option value="SUPER_ADMIN">Super Admin</option>
                     <option value="ADMIN">Admin</option>
+                    <option value="DIRECTOR">Director</option>
+                    <option value="DEAN">Dean</option>
+                    <option value="HOD">Head of Department (HoD)</option>
                     <option value="PRINCIPAL_OFFICER">Principal Officer</option>
+                    <option value="REGISTRAR">Registrar</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
                   </select>
@@ -273,25 +287,39 @@ export default function UsersPage() {
                   )}
                 </div>
                 <div className="md:col-span-2 flex items-center justify-between gap-2">
-                  <div className="text-xs text-black/70 dark:text-white/70">{statusMsg}</div>
+                  <div className="text-xs text-slate-500">{statusMsg}</div>
                   <button
                     type="button"
                     onClick={() => setShowAdd(false)}
-                    className="h-10 px-4 rounded border border-black/20 text-sm"
+                    className="dash-btn-secondary h-10 px-4 text-sm"
                   >
                     Cancel
                   </button>
-                  <button type="submit" disabled={saving} className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">{saving ? "Saving..." : "Save"}</button>
+                  <button type="submit" disabled={saving} className="dash-btn-primary h-10 px-4 text-sm">{saving ? "Saving..." : "Save"}</button>
                 </div>
               </form>
             </div>
           )}
 
-          <div className="mt-6 rounded-xl border border-black/[.08] dark:border-white/[.145] overflow-hidden bg-white/70 dark:bg-white/5">
+          {fetchError && (
+            <div className="mt-6 rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/30 dark:border-red-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-red-800 dark:text-red-200">{fetchError}</p>
+              <button
+                type="button"
+                onClick={loadUsers}
+                disabled={loading}
+                className="h-9 px-4 rounded border border-red-300 dark:border-red-700 text-sm text-red-800 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/40 disabled:opacity-60"
+              >
+                {loading ? "Retrying..." : "Retry"}
+              </button>
+            </div>
+          )}
+
+          <div className="mt-6 dash-panel overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">All Users</div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+              <table className="min-w-full text-sm dash-table">
+                <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                   <tr>
                     <th className="text-left px-4 py-2">Avatar</th>
                     <th className="text-left px-4 py-2">Name</th>
@@ -312,7 +340,11 @@ export default function UsersPage() {
                     </tr>
                   ) : users.length === 0 ? (
                     <tr>
-                      <td className="px-4 py-4" colSpan={5}>No users found. Click "Add user" to create a new user.</td>
+                      <td className="px-4 py-4" colSpan={5}>
+                        {fetchError
+                          ? "Users could not be loaded."
+                          : 'No users found. Click "Add user" to create a new user.'}
+                      </td>
                     </tr>
                   ) : (
                     users.map((u, idx) => (
@@ -322,8 +354,11 @@ export default function UsersPage() {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={u.avatarDataUrl || "/images/fceo-logo.jpg"}
-                              alt="avatar"
+                              alt=""
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/images/fceo-logo.jpg";
+                              }}
                             />
                           </div>
                         </td>
@@ -374,9 +409,7 @@ export default function UsersPage() {
               </table>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

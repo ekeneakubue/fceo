@@ -1,7 +1,7 @@
 "use client";
+
 import { useEffect } from "react";
-import Sidebar from "../../components/dashboard/Sidebar";
-import Topbar from "../../components/dashboard/Topbar";
+import { QuickActionCard, StatCard, WelcomeBanner } from "../../components/dashboard/DashboardUI";
 
 export default function SuperAdminDashboard() {
   useEffect(() => {
@@ -17,38 +17,34 @@ export default function SuperAdminDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ users, students, news, gallery }),
-      }).finally(() => {
-        localStorage.setItem("fceo.synced", "1");
-      });
+      }).finally(() => localStorage.setItem("fceo.synced", "1"));
     } catch {}
   }, []);
-  const widgets = [
-    { title: "Manage Users", href: "#" },
-    { title: "Roles & Permissions", href: "#" },
-    { title: "Dashboard Widgets", href: "#" },
-    { title: "System Settings", href: "#" },
-  ];
+
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-        <h1 className="text-2xl md:text-3xl font-semibold">Super Admin Dashboard</h1>
-        <p className="text-black/80 dark:text-white/80 mt-2">High-level controls and configuration.</p>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {widgets.map((w) => (
-            <a key={w.title} href={w.href} className="rounded-xl border border-black/[.08] dark:border-white/[.145] p-6 bg-white/70 dark:bg-white/5 hover:bg-white">
-              <div className="text-2xl">⚙️</div>
-              <h3 className="mt-2 font-semibold">{w.title}</h3>
-              <p className="text-sm text-black/70 dark:text-white/70 mt-1">Go to {w.title}</p>
-            </a>
-          ))}
-        </div>
-        </div>
-      </main>
-    </div>
+    <>
+      <WelcomeBanner
+        badge="Super Admin"
+        title="Welcome back to FCEO Admin"
+        subtitle="Manage users, academic programs, content, and system configuration from one central hub."
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <StatCard label="User Roles" value="11" hint="Including Director, Dean, HoD" icon="users" />
+        <StatCard label="Modules" value="10" hint="Active admin sections" icon="widgets" accent="blue" />
+        <StatCard label="Content" value="News & Gallery" hint="Publish campus updates" icon="news" accent="amber" />
+        <StatCard label="Academics" value="Programs" hint="Courses & timetables" icon="programs" accent="violet" />
+      </div>
+
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">Quick Actions</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <QuickActionCard title="Manage Users" description="Add, edit, and assign roles to staff." href="/dashboard/super-admin/users" icon="users" />
+        <QuickActionCard title="Students" description="View and manage student records." href="/dashboard/super-admin/students" icon="students" />
+        <QuickActionCard title="Roles & Permissions" description="Define access policies for each role." href="/dashboard/super-admin/roles" icon="shield" />
+        <QuickActionCard title="Dashboard Widgets" description="Configure role-scoped dashboard cards." href="/dashboard/super-admin/widgets" icon="widgets" />
+        <QuickActionCard title="News & Gallery" description="Publish news and campus photos." href="/dashboard/super-admin/news" icon="news" />
+        <QuickActionCard title="System Settings" description="Update your profile and preferences." href="/dashboard/super-admin/settings" icon="settings" />
+      </div>
+    </>
   );
 }
-
-

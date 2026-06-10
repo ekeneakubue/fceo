@@ -1,8 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
-
 type StoredUser = {
   id?: string;
   email?: string;
@@ -71,7 +68,7 @@ export default function SettingsPage() {
 
       let updated: any = payload;
       if ((current as any)?.id) {
-        const res = await fetch("/api/demo-users", {
+        const res = await fetch("/api/users", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -79,7 +76,7 @@ export default function SettingsPage() {
         updated = await res.json();
       }
       localStorage.setItem("fceo.currentUser", JSON.stringify(updated));
-      const refreshed = await fetch("/api/demo-users").then((r) => r.json());
+      const refreshed = await fetch("/api/users").then((r) => r.json());
       setUsers(refreshed);
       setCurrent(updated);
       setMessage("Profile updated");
@@ -91,13 +88,9 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <h1 className="text-2xl md:text-3xl font-semibold">User Settings</h1>
-          <p className="text-black/80 dark:text-white/80 mt-2">Manage your profile and preferences.</p>
+    <>
+<h1 className="text-2xl md:text-3xl font-semibold">User Settings</h1>
+          <p className="text-slate-600 mt-2">Manage your profile and preferences.</p>
 
           <div className="mt-8 rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">Update Profile</div>
@@ -176,20 +169,18 @@ export default function SettingsPage() {
                     setAvatarDataUrl(current?.avatarDataUrl || "");
                     setPassword(current?.password || "");
                   }}
-                  className="h-10 px-4 rounded border border-black/20 text-sm"
+                  className="dash-btn-secondary h-10 px-4 text-sm"
                 >
                   Reset
                 </button>
-                <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save changes</button>
+                <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save changes</button>
               </div>
               {loaded && message && (
                 <div className="md:col-span-2 text-sm text-green-700">{message}</div>
               )}
             </form>
           </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

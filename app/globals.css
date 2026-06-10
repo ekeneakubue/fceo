@@ -1,24 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f8fafc;
   --foreground: #0f172a;
-  --brand: #0ea5e9; /* sky-500 */
+  --brand: rgb(3, 158, 29);
+  --brand-green: rgb(3, 158, 29);
+  --brand-green-dark: rgb(2, 110, 20);
+  --brand-green-light: rgb(220, 252, 231);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-dark: var(--brand-green-dark);
+  --color-brand-green-light: var(--brand-green-light);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #e2e8f0;
-  }
 }
 
 body {
@@ -26,4 +25,113 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
     Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Dashboard design system */
+.dash-content {
+  @apply px-4 md:px-8 py-6 md:py-8 max-w-7xl w-full mx-auto;
+}
+
+.dash-card {
+  @apply rounded-xl border border-slate-200/80 bg-white shadow-sm;
+}
+
+.dash-panel {
+  @apply rounded-xl border border-slate-200/80 bg-white shadow-sm;
+}
+
+.dash-btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-brand-green text-white
+    hover:bg-brand-green-dark transition-colors shadow-sm shadow-brand-green/20;
+}
+
+.dash-btn-secondary {
+  @apply inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white
+    text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors;
+}
+
+.dash-input {
+  @apply w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900
+    placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green;
+}
+
+.dash-table thead {
+  @apply bg-slate-50 text-slate-600 text-xs uppercase tracking-wider;
+}
+
+.dash-table th {
+  @apply text-left px-4 py-3 font-semibold;
+}
+
+.dash-table td {
+  @apply px-4 py-3 text-sm text-slate-700;
+}
+
+.dash-table tbody tr {
+  @apply border-t border-slate-100 hover:bg-brand-green-light/30 transition-colors;
+}
+
+/* Staff login animated background */
+@keyframes staff-login-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes staff-login-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, -30px) scale(1.08);
+  }
+}
+
+@keyframes staff-login-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-35px, 25px) scale(1.05);
+  }
+}
+
+@keyframes staff-login-float-c {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(25px, 35px) scale(0.95);
+  }
+}
+
+.staff-login-bg {
+  background-color: rgb(3, 158, 29);
+  background-image: linear-gradient(
+    160deg,
+    #013d0c 0%,
+    rgb(3, 158, 29) 45%,
+    #02a822 100%
+  );
+  background-size: 200% 200%;
+  animation: staff-login-shift 14s ease infinite;
+}
+
+.staff-login-orb-a {
+  animation: staff-login-float-a 14s ease-in-out infinite;
+}
+
+.staff-login-orb-b {
+  animation: staff-login-float-b 18s ease-in-out infinite;
+}
+
+.staff-login-orb-c {
+  animation: staff-login-float-c 16s ease-in-out infinite;
 }

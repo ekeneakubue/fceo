@@ -1,8 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
-
 type NewsItem = {
   id?: string;
   title: string;
@@ -31,18 +28,14 @@ export default function NewsAdminPage() {
   const persist = (next: NewsItem[]) => setItems(next);
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between gap-3">
+    <>
+<div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">News</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Create and manage news posts.</p>
+              <p className="text-slate-600 mt-2">Create and manage news posts.</p>
             </div>
             <button
-              className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
+              className="dash-btn-primary h-10 px-4 text-sm"
               onClick={() => {
                 setEditIndex(-1);
                 setTitle("");
@@ -80,11 +73,11 @@ export default function NewsAdminPage() {
                 <div className="md:col-span-2 text-lg font-semibold">{editIndex >= 0 ? "Edit news" : "Add news"}</div>
                 <div>
                   <label className="block text-xs mb-1">Title</label>
-                  <input className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={title} onChange={(e) => setTitle(e.target.value)} required />
+                  <input className="dash-input" value={title} onChange={(e) => setTitle(e.target.value)} required />
                 </div>
                 <div>
                   <label className="block text-xs mb-1">Date</label>
-                  <input type="date" className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black" value={date} onChange={(e) => setDate(e.target.value)} />
+                  <input type="date" className="dash-input" value={date} onChange={(e) => setDate(e.target.value)} />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs mb-1">Body</label>
@@ -112,18 +105,18 @@ export default function NewsAdminPage() {
                   )}
                 </div>
                 <div className="md:col-span-2 flex items-center justify-end gap-2">
-                  <button type="button" onClick={() => setShowAdd(false)} className="h-10 px-4 rounded border border-black/20 text-sm">Cancel</button>
-                  <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  <button type="button" onClick={() => setShowAdd(false)} className="dash-btn-secondary h-10 px-4 text-sm">Cancel</button>
+                  <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save</button>
                 </div>
               </form>
             </div>
           )}
 
-          <div className="mt-6 rounded-xl border border-black/[.08] dark:border-white/[.145] overflow-hidden bg-white/70 dark:bg-white/5">
+          <div className="mt-6 dash-panel overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">All News</div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+              <table className="min-w-full text-sm dash-table">
+                <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                   <tr>
                     <th className="text-left px-4 py-2">Image</th>
                     <th className="text-left px-4 py-2">Title</th>
@@ -222,13 +215,11 @@ export default function NewsAdminPage() {
                     <img src={items[viewIndex].imageDataUrl as string} alt={items[viewIndex].title} className="w-full h-full object-cover" />
                   </div>
                 )}
-                <p className="mt-4 text-sm text-black/80 dark:text-white/80 whitespace-pre-wrap">{items[viewIndex].body}</p>
+                <p className="mt-4 text-sm text-slate-600 whitespace-pre-wrap">{items[viewIndex].body}</p>
               </div>
             </div>
           )}
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

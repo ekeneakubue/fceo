@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "College of Education",
   description: "Inspiring educators. Transforming communities.",
+  icons: {
+    icon: "/favicon.PNG",
+    apple: "/images/fceo-logo.jpg",
+  },
 };
 
 export default function RootLayout({

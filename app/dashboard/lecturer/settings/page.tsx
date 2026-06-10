@@ -1,6 +1,4 @@
 "use client";
-import SidebarLecturer from "../../../components/dashboard/SidebarLecturer";
-import Topbar from "../../../components/dashboard/Topbar";
 import { useEffect, useState } from "react";
 
 export default function LecturerSettingsPage() {
@@ -26,7 +24,7 @@ export default function LecturerSettingsPage() {
       const payload = { ...cur, avatarDataUrl: avatarDataUrl || undefined };
       let updated = payload;
       if (cur?.id) {
-        const res = await fetch("/api/demo-users", {
+        const res = await fetch("/api/users", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -40,13 +38,9 @@ export default function LecturerSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <SidebarLecturer />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <h1 className="text-2xl md:text-3xl font-semibold">User Settings</h1>
-          <p className="text-black/80 dark:text-white/80 mt-2">Update your profile avatar.</p>
+    <>
+<h1 className="text-2xl md:text-3xl font-semibold">User Settings</h1>
+          <p className="text-slate-600 mt-2">Update your profile avatar.</p>
           <form className="mt-6 grid gap-4 md:max-w-md" onSubmit={save}>
             <div>
               <label className="block text-xs mb-1">Avatar</label>
@@ -70,13 +64,11 @@ export default function LecturerSettingsPage() {
               )}
             </div>
             <div>
-              <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save changes</button>
+              <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save changes</button>
             </div>
             {message && <div className="text-sm text-green-700">{message}</div>}
           </form>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

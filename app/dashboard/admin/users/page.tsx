@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import SidebarAdmin from "../../../components/dashboard/SidebarAdmin";
-import Topbar from "../../../components/dashboard/Topbar";
+import { formatRoleLabel } from "@/lib/roles";
 
-type DemoUser = {
+type AdminUser = {
   id?: string;
   fullName?: string;
   email?: string;
@@ -13,7 +12,7 @@ type DemoUser = {
 };
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<DemoUser[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number>(-1);
@@ -31,7 +30,7 @@ export default function AdminUsersPage() {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch("/api/demo-users", { cache: "no-store" });
+        const res = await fetch("/api/users", { cache: "no-store" });
         const list = await res.json();
         if (!mounted) return;
         const filtered = Array.isArray(list)
@@ -50,15 +49,11 @@ export default function AdminUsersPage() {
   }, []);
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <SidebarAdmin />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between gap-3">
+    <>
+      <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Users</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Fetched from database via /api/demo-users.</p>
+              <p className="text-slate-600 mt-2">Fetched from database via /api/users.</p>
             </div>
             <button
               onClick={() => {
@@ -69,17 +64,17 @@ export default function AdminUsersPage() {
                 setAvatarDataUrl(undefined);
                 setShowAdd(true);
               }}
-              className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium"
+              className="dash-btn-primary h-10 px-4 text-sm"
             >
               Add user
             </button>
           </div>
 
-          <div className="mt-6 rounded-xl border border-black/[.08] dark:border-white/[.145] overflow-hidden bg-white/70 dark:bg-white/5">
+          <div className="mt-6 dash-panel overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">All Users</div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+              <table className="min-w-full text-sm dash-table">
+                <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                   <tr>
                     <th className="text-left px-4 py-2">Name</th>
                     <th className="text-left px-4 py-2">Email</th>
@@ -136,7 +131,7 @@ export default function AdminUsersPage() {
                                     setUsers(next);
                                     return;
                                   }
-                                  await fetch(`/api/demo-users?id=${encodeURIComponent(String(id))}`, { method: "DELETE" });
+                                  await fetch(`/api/users?id=${encodeURIComponent(String(id))}`, { method: "DELETE" });
                                   const next = users.filter((_, i) => i !== idx);
                                   setUsers(next);
                                 } catch {}
@@ -181,7 +176,7 @@ export default function AdminUsersPage() {
                   <div className="text-sm"><span className="font-medium">Email:</span> {users[viewIndex].email || "—"}</div>
                   <div className="text-sm"><span className="font-medium">Role:</span> {users[viewIndex].roleLabel || users[viewIndex].roleKey || "—"}</div>
                   {users[viewIndex].id && (
-                    <div className="text-xs text-black/70 dark:text-white/70"><span className="font-medium">ID:</span> {users[viewIndex].id}</div>
+                    <div className="text-xs text-slate-500"><span className="font-medium">ID:</span> {users[viewIndex].id}</div>
                   )}
                 </div>
               </div>
@@ -202,17 +197,13 @@ export default function AdminUsersPage() {
                     fullName,
                     email,
                     roleKey,
-                    roleLabel: roleKey
-                      .toLowerCase()
-                      .split("_")
-                      .map((s) => (s[0] ? s[0].toUpperCase() + s.slice(1) : s))
-                      .join(" "),
+                    roleLabel: formatRoleLabel(roleKey),
                     avatarDataUrl,
                   };
                   try {
                     let updated = payload;
                     if (id) {
-                      const res = await fetch("/api/demo-users", {
+                      const res = await fetch("/api/users", {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload),
@@ -230,7 +221,7 @@ export default function AdminUsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Full name</label>
                   <input
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -240,7 +231,7 @@ export default function AdminUsersPage() {
                   <label className="block text-xs mb-1">Email</label>
                   <input
                     type="email"
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -249,11 +240,14 @@ export default function AdminUsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Role</label>
                   <select
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={roleKey}
                     onChange={(e) => setRoleKey(e.target.value)}
                   >
                     <option value="ADMIN">Admin</option>
+                    <option value="DIRECTOR">Director</option>
+                    <option value="DEAN">Dean</option>
+                    <option value="HOD">Head of Department (HoD)</option>
                     <option value="PRINCIPAL_OFFICER">Principal Officer</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
@@ -284,11 +278,11 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => setShowEdit(false)}
-                    className="h-10 px-4 rounded border border-black/20 text-sm"
+                    className="dash-btn-secondary h-10 px-4 text-sm"
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save</button>
                 </div>
               </form>
             </div>
@@ -304,16 +298,12 @@ export default function AdminUsersPage() {
                     fullName,
                     email,
                     roleKey,
-                    roleLabel: roleKey
-                      .toLowerCase()
-                      .split("_")
-                      .map((s) => (s[0] ? s[0].toUpperCase() + s.slice(1) : s))
-                      .join(" "),
+                    roleLabel: formatRoleLabel(roleKey),
                     avatarDataUrl,
                     password: password || undefined,
                   };
                   try {
-                    const res = await fetch("/api/demo-users", {
+                    const res = await fetch("/api/users", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify(payload),
@@ -334,7 +324,7 @@ export default function AdminUsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Full name</label>
                   <input
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -344,7 +334,7 @@ export default function AdminUsersPage() {
                   <label className="block text-xs mb-1">Email</label>
                   <input
                     type="email"
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -374,11 +364,14 @@ export default function AdminUsersPage() {
                 <div>
                   <label className="block text-xs mb-1">Role</label>
                   <select
-                    className="w-full px-3 py-2 rounded border border-black/20 bg-white text-black"
+                    className="dash-input"
                     value={roleKey}
                     onChange={(e) => setRoleKey(e.target.value)}
                   >
                     <option value="ADMIN">Admin</option>
+                    <option value="DIRECTOR">Director</option>
+                    <option value="DEAN">Dean</option>
+                    <option value="HOD">Head of Department (HoD)</option>
                     <option value="PRINCIPAL_OFFICER">Principal Officer</option>
                     <option value="STAFF">Staff</option>
                     <option value="LECTURER">Lecturer</option>
@@ -409,18 +402,16 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAdd(false)}
-                    className="h-10 px-4 rounded border border-black/20 text-sm"
+                    className="dash-btn-secondary h-10 px-4 text-sm"
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="h-10 px-4 rounded bg-[rgb(3,158,29)] text-white text-sm font-medium">Save</button>
+                  <button type="submit" className="dash-btn-primary h-10 px-4 text-sm">Save</button>
                 </div>
               </form>
             </div>
           )}
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

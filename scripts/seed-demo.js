@@ -9,8 +9,8 @@ async function main() {
     const password = "admin123"; // demo only
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const existingByEmail = await prisma.demoUser.findFirst({ where: { email } });
-    const existingByReg = await prisma.demoUser.findFirst({ where: { regNo } });
+    const existingByEmail = await prisma.user.findFirst({ where: { email } });
+    const existingByReg = await prisma.user.findFirst({ where: { regNo } });
 
     const payload = {
       fullName: "Demo Super Admin",
@@ -24,11 +24,11 @@ async function main() {
 
     if (existingByEmail || existingByReg) {
       const id = (existingByEmail || existingByReg).id;
-      const updated = await prisma.demoUser.update({ where: { id }, data: payload });
-      console.log("Updated demo SUPER_ADMIN:", { id: updated.id, email: updated.email, regNo: updated.regNo });
+      const updated = await prisma.user.update({ where: { id }, data: payload });
+      console.log("Updated SUPER_ADMIN user:", { id: updated.id, email: updated.email, regNo: updated.regNo });
     } else {
-      const created = await prisma.demoUser.create({ data: payload });
-      console.log("Created demo SUPER_ADMIN:", { id: created.id, email: created.email, regNo: created.regNo });
+      const created = await prisma.user.create({ data: payload });
+      console.log("Created SUPER_ADMIN user:", { id: created.id, email: created.email, regNo: created.regNo });
     }
   } finally {
     await new PrismaClient().$disconnect();
@@ -39,5 +39,3 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-
-

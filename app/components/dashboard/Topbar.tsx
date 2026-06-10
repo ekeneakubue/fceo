@@ -1,94 +1,146 @@
 "use client";
+
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { NavIcon } from "./icons";
+import { detectDashboardRole, getPageTitle } from "./nav-config";
 
-export default function Topbar({ displayName }: { displayName?: string }) {
+export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [name, setName] = useState<string>("Super Admin");
-  const [avatarSrc, setAvatarSrc] = useState<string>("/images/fceo-logo.jpg");
-  const isStudent = typeof pathname === "string" && pathname.startsWith("/dashboard/student");
+  const role = detectDashboardRole(pathname || "");
+  const pageTitle = getPageTitle(pathname || "", role);
+  const [name, setName] = useState("User");
+  const [avatarSrc, setAvatarSrc] = useState("/images/fceo-logo.jpg");
+  const isStudent = role === "student";
 
   const handleLogout = () => {
     try {
       const raw = localStorage.getItem("fceo.currentUser");
-      let role = "";
+      let userRole = "";
       if (raw) {
         const u = JSON.parse(raw);
-        role = String(u?.roleKey || u?.roleLabel || "").toUpperCase();
+        userRole = String(u?.roleKey || u?.roleLabel || "").toUpperCase();
       }
       localStorage.removeItem("fceo.currentUser");
-      const target = role.includes("STUDENT") ? "/student-login" : "/staff-login";
-      router.push(target);
+      router.push(userRole.includes("STUDENT") ? "/student-login" : "/staff-login");
     } catch {
       router.push("/staff-login");
     }
   };
 
   useEffect(() => {
-    (async () => {
+    type StoredUser = {
+      email?: string;
+      regNo?: string;
+      fullName?: string;
+      avatarDataUrl?: string;
+    };
+
+    const matchUser = (list: StoredUser[], email: string | null, regNo: string | null) => {
+      if (!Array.isArray(list) || list.length === 0) return null;
+      if (email) {
+        const byEmail = list.find((u) => (u?.email || "").toString().trim().toLowerCase() === email);
+        if (byEmail) return byEmail;
+      }
+      if (regNo) {
+        const byReg = list.find((u) => (u?.regNo || "").toString().trim().toLowerCase() === regNo);
+        if (byReg) return byReg;
+      }
+      return null;
+    };
+
+    const applyUser = (user: StoredUser | null) => {
+      if (!user) return;
+      const display = user.fullName || user.email || "User";
+      const avatar = user.avatarDataUrl || "/images/fceo-logo.jpg";
+      setName(display);
+      setAvatarSrc(avatar);
+    };
+
+    const loadCurrentUser = async () => {
       try {
-        // Try to determine an identity (from local storage) to match in DB
         let identEmail: string | null = null;
         let identRegNo: string | null = null;
-        try {
-          const rawCurrent = localStorage.getItem("fceo.currentUser");
-          if (rawCurrent) {
-            const parsed = JSON.parse(rawCurrent);
-            identEmail = (parsed?.email || "").toString().trim().toLowerCase() || null;
-            identRegNo = (parsed?.regNo || "").toString().trim().toLowerCase() || null;
-          }
-        } catch {}
+        let localUser: StoredUser | null = null;
 
-        const res = await fetch("/api/demo-users", { cache: "no-store" });
-        if (!res.ok) return;
-        const list = await res.json();
-        if (!Array.isArray(list) || list.length === 0) return;
+        const rawCurrent = localStorage.getItem("fceo.currentUser");
+        if (rawCurrent) {
+          const parsed = JSON.parse(rawCurrent) as StoredUser;
+          localUser = parsed;
+          identEmail = (parsed?.email || "").toString().trim().toLowerCase() || null;
+          identRegNo = (parsed?.regNo || "").toString().trim().toLowerCase() || null;
+          applyUser(parsed);
+        }
 
-        // Preference order: match by email, then regNo, then SUPER_ADMIN, else first
-        let current = null as any;
-        if (identEmail) {
-          current = list.find((u: any) => (u?.email || "").toString().toLowerCase() === identEmail) || null;
-        }
-        if (!current && identRegNo) {
-          current = list.find((u: any) => (u?.regNo || "").toString().toLowerCase() === identRegNo) || null;
-        }
-        if (!current) {
-          current = list.find((u: any) => (u?.roleKey || u?.roleLabel || "").toString().toUpperCase().includes("SUPER_ADMIN")) || null;
-        }
-        if (!current) current = list[0];
+        const usersRes = await fetch("/api/users", { cache: "no-store" });
 
-        if (current) {
-          const display = current.fullName || current.email || "User";
-          const avatar = current.avatarDataUrl || "/images/fceo-logo.jpg";
-          setName(display);
-          setAvatarSrc(avatar);
+        let dbUser: StoredUser | null = null;
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          dbUser = matchUser(users, identEmail, identRegNo);
+        }
+
+        const resolved = {
+          ...localUser,
+          ...dbUser,
+          fullName: dbUser?.fullName || localUser?.fullName,
+          avatarDataUrl: dbUser?.avatarDataUrl || localUser?.avatarDataUrl,
+        };
+
+        if (resolved.email || resolved.fullName) {
+          applyUser(resolved);
         }
       } catch {}
-    })();
+    };
+
+    loadCurrentUser();
+
+    const handleUserUpdated = (e: Event) => {
+      const updated = (e as CustomEvent).detail?.user as StoredUser | undefined;
+      if (updated) applyUser(updated);
+      else loadCurrentUser();
+    };
+    window.addEventListener("fceo:user-updated", handleUserUpdated as EventListener);
+    return () => window.removeEventListener("fceo:user-updated", handleUserUpdated as EventListener);
   }, []);
+
   return (
-    <div className="w-full border-b border-black/[.08] dark:border-white/[.14] bg-white/70 dark:bg-white/5 px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-40">
-      <div className="text-sm md:text-base font-medium">Dashboard</div>
-      <div className="flex items-center gap-3">
-        {!isStudent && (
-          <>
-            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10">
-              <Image src={avatarSrc} alt="User avatar" fill className="object-cover" />
-            </div>
-            <span className="hidden sm:block text-sm font-medium">{displayName || name}</span>
-          </>
-        )}
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md px-4 md:px-6 py-3 flex items-center justify-between gap-4 shadow-sm">
+      <div className="flex items-center gap-3 min-w-0">
         <button
-          onClick={handleLogout}
-          className="text-sm px-3 py-2 rounded border border-black/[.12] dark:border-white/[.18] hover:bg-black/[.04] dark:hover:bg-white/[.08]"
+          type="button"
+          onClick={onMenuClick}
+          className="md:hidden p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100"
+          aria-label="Open menu"
         >
+          <NavIcon name="menu" className="w-5 h-5" />
+        </button>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-brand-green uppercase tracking-wider hidden sm:block">Dashboard</p>
+          <h1 className="text-base md:text-lg font-semibold text-slate-900 truncate">{pageTitle}</h1>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 md:gap-3 shrink-0">
+        {!isStudent && (
+          <div className="hidden sm:flex items-center gap-2.5 pr-2 border-r border-slate-200">
+            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-2 ring-brand-green/20">
+              {avatarSrc.startsWith("data:") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarSrc} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <Image src={avatarSrc} alt="" fill className="object-cover" unoptimized />
+              )}
+            </div>
+            <span className="text-sm font-medium text-slate-700 max-w-[140px] truncate">{name}</span>
+          </div>
+        )}
+        <button type="button" onClick={handleLogout} className="dash-btn-secondary text-sm px-3 py-2 h-9">
           Logout
         </button>
       </div>
-    </div>
+    </header>
   );
 }
-
-

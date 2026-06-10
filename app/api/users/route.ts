@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { isDatabaseConnectionError, withDatabaseRetry } from "@/lib/db";
+import { formatRoleLabel } from "@/lib/roles";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
-    const users = await prisma.user.findMany({
+    const users = await withDatabaseRetry(async () => {
+      const existingCount = await prisma.user.count();
+      if (existingCount === 0) {
+        const hashedPassword = await bcrypt.hash("admin123", 12);
+        await prisma.user.create({
+          data: {
+            fullName: "Demo Super Admin",
+            email: "super@fceo.local",
+            regNo: "FCEO/ADMIN/0001",
+            roleKey: "SUPER_ADMIN" as any,
+            roleLabel: "Super Admin",
+            password: hashedPassword,
+          },
+        });
+      }
+      return prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -20,10 +37,20 @@ export async function GET() {
         updatedAt: true,
       },
     });
+    });
     return NextResponse.json(users);
   } catch (error: any) {
     console.error("Error fetching users:", error);
-    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
+    const message = error?.message || "Internal server error";
+    const isConnectionError = isDatabaseConnectionError(error);
+    return NextResponse.json(
+      {
+        error: isConnectionError
+          ? "Database is waking up or unreachable. Wait a moment and try again."
+          : message,
+      },
+      { status: isConnectionError ? 503 : 500 }
+    );
   }
 }
 
@@ -49,11 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const computedRoleLabel = roleLabel || String(roleKey)
-      .toLowerCase()
-      .split("_")
-      .map((s: string) => s[0].toUpperCase() + s.slice(1))
-      .join(" ");
+    const computedRoleLabel = formatRoleLabel(String(roleKey));
 
     const created = await prisma.user.create({
       data: {
@@ -108,8 +131,12 @@ export async function PUT(req: NextRequest) {
     if (typeof fullName === "string") updateData.fullName = fullName;
     if (typeof email === "string") updateData.email = email;
     if (typeof regNo !== "undefined") updateData.regNo = regNo;
-    if (typeof roleKey === "string") updateData.roleKey = roleKey;
-    if (typeof roleLabel === "string") updateData.roleLabel = roleLabel;
+    if (typeof roleKey === "string") {
+      updateData.roleKey = roleKey;
+      updateData.roleLabel = formatRoleLabel(roleKey);
+    } else if (typeof roleLabel === "string") {
+      updateData.roleLabel = roleLabel;
+    }
     if (typeof avatarDataUrl !== "undefined") updateData.avatarDataUrl = avatarDataUrl;
     if (typeof password === "string" && password.length > 0) {
       updateData.password = await bcrypt.hash(password, 12);

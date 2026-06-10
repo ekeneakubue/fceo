@@ -1,8 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
-
 type Student = {
   regNo?: string;
   surname?: string;
@@ -134,20 +131,16 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between gap-3">
+    <>
+<div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">Students</h1>
-              <p className="text-black/80 dark:text-white/80 mt-2">Manage students. Upload CSV with columns at minimum: RegNo, Programme. Optional columns will be filled with empty strings.</p>
+              <p className="text-slate-600 mt-2">Manage students. Upload CSV with columns at minimum: RegNo, Programme. Optional columns will be filled with empty strings.</p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="h-10 px-4 rounded border border-black/20 text-sm bg-white/70 dark:bg-white/5"
+                className="dash-btn-secondary h-10 px-4 text-sm"
                 aria-label="Total students"
               >
                 Total: {students.length}
@@ -173,11 +166,11 @@ export default function StudentsPage() {
             <div className="mt-3 text-sm text-red-600">{error}</div>
           )}
 
-          <div className="mt-6 rounded-xl border border-black/[.08] dark:border-white/[.145] overflow-hidden bg-white/70 dark:bg-white/5">
+          <div className="mt-6 dash-panel overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">All Students</div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+              <table className="min-w-full text-sm dash-table">
+                <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                   <tr>
                     <th className="text-left px-4 py-2">RegNo</th>
                     <th className="text-left px-4 py-2">Surname</th>
@@ -294,7 +287,7 @@ export default function StudentsPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-xs md:text-sm">
-                    <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+                    <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                       <tr>
                         <th className="text-left px-3 py-2">RegNo</th>
                         <th className="text-left px-3 py-2">Surname</th>
@@ -323,9 +316,7 @@ export default function StudentsPage() {
               </div>
             </div>
           )}
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

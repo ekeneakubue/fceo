@@ -1,8 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Sidebar from "../../../components/dashboard/Sidebar";
-import Topbar from "../../../components/dashboard/Topbar";
-
 type StoredUser = {
   id?: string;
   email?: string;
@@ -16,7 +13,7 @@ export default function LecturersPage() {
   const [users, setUsers] = useState<StoredUser[]>([]);
 
   useEffect(() => {
-    fetch("/api/demo-users").then(async (r) => setUsers(await r.json())).catch(() => {});
+    fetch("/api/users").then(async (r) => setUsers(await r.json())).catch(() => {});
   }, []);
 
   const lecturers = useMemo(
@@ -25,19 +22,15 @@ export default function LecturersPage() {
   );
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[256px_1fr]">
-      <Sidebar />
-      <main className="px-0">
-        <Topbar />
-        <div className="px-6 py-8">
-          <h1 className="text-2xl md:text-3xl font-semibold">Lecturers</h1>
-          <p className="text-black/80 dark:text-white/80 mt-2">Users with lecturer/teacher role.</p>
+    <>
+<h1 className="text-2xl md:text-3xl font-semibold">Lecturers</h1>
+          <p className="text-slate-600 mt-2">Users with lecturer/teacher role.</p>
 
-          <div className="mt-6 rounded-xl border border-black/[.08] dark:border-white/[.145] overflow-hidden bg-white/70 dark:bg-white/5">
+          <div className="mt-6 dash-panel overflow-hidden">
             <div className="px-4 py-3 bg-black/5 dark:bg-white/10 font-semibold">All Lecturers</div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-black/5 dark:bg-white/10 text-black/80 dark:text-white/80">
+              <table className="min-w-full text-sm dash-table">
+                <thead className="bg-black/5 dark:bg-white/10 text-slate-600">
                   <tr>
                     <th className="text-left px-4 py-2">Avatar</th>
                     <th className="text-left px-4 py-2">Name</th>
@@ -73,9 +66,7 @@ export default function LecturersPage() {
               </table>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+    </>
   );
 }
 

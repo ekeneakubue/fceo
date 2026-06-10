@@ -91,6 +91,12 @@ export default function Navbar() {
           <Link href="/ict" className="hover:text-black/70">ICT Center</Link>
           <Link href="/gallery" className="hover:text-black/70">Gallery</Link>
           <Link href="/news" className="hover:text-black/70">News</Link>
+          <Link
+            href="/admission/application-form"
+            className="bg-red-600 text-white px-4 py-2 rounded font-medium hover:bg-red-700 transition"
+          >
+            Application
+          </Link>
           <Link href="/student-login" className="border px-4 py-2 rounded hover:bg-white hover:text-[rgb(3,158,29)] transition">Portal</Link>
         </div>
       </div>
@@ -125,6 +131,13 @@ export default function Navbar() {
           <Link href="/ict" onClick={toggleNavbar}>ICT Center</Link>
           <Link href="/gallery" onClick={toggleNavbar}>Gallery</Link>
           <Link href="/news" onClick={toggleNavbar}>News</Link>
+          <Link
+            href="/admission/application-form"
+            onClick={toggleNavbar}
+            className="bg-red-600 text-white px-4 py-2 rounded font-medium text-center hover:bg-red-700 transition"
+          >
+            Application
+          </Link>
           <Link href="/dashboard/super-admin" onClick={toggleNavbar} className="border px-4 py-2 rounded self-center w-1/2 text-center">Portal</Link>
         </div>
       )}
