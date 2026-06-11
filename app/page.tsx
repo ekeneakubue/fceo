@@ -72,7 +72,7 @@ export default function Home() {
           </ul>
         </div>
       </section>
-      <section className="relative h-screen min-h-[100vh] flex items-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/70">
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/70">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-brand-green/10 blur-3xl"
@@ -144,7 +144,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="relative h-screen min-h-[100vh] flex items-center overflow-hidden bg-slate-900">
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-slate-900">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(3,158,29,0.25),transparent_55%)]"
