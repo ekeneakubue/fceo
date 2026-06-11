@@ -149,6 +149,7 @@ export default function ApplicationFormPage() {
   const [schoolPrograms, setSchoolPrograms] = useState<ProgramOption[]>([]);
   const [programsLoading, setProgramsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadingSlip, setDownloadingSlip] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedApplicant, setSubmittedApplicant] = useState<SubmittedApplicant | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -384,29 +385,39 @@ export default function ApplicationFormPage() {
     }
   };
 
-  const handleDownloadAcknowledgment = () => {
-    if (!submittedApplicant) return;
+  const handleDownloadAcknowledgment = async () => {
+    if (!submittedApplicant || downloadingSlip) return;
 
-    downloadAcknowledgmentSlip({
-      applicationNo: submittedApplicant.applicationNo,
-      submittedAt: submittedApplicant.submittedAt,
-      surname: data.surname,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      gender: data.gender || null,
-      dateOfBirth: data.dateOfBirth || null,
-      address: data.address || null,
-      countryOfOrigin: getCountryName(data.countryOfOrigin) || null,
-      stateOfOrigin: getStateName(data.countryOfOrigin, data.stateOfOrigin) || null,
-      localGovernmentOfOrigin: data.localGovernmentOfOrigin || null,
-      homeTown: data.homeTown || null,
-      schoolName: submittedApplicant.schoolName,
-      programType: submittedApplicant.programType,
-      programName: submittedApplicant.programName,
-      avatarDataUrl: data.avatarDataUrl || null,
-    });
+    setDownloadingSlip(true);
+    setError(null);
+    try {
+      await downloadAcknowledgmentSlip({
+        applicationNo: submittedApplicant.applicationNo,
+        submittedAt: submittedApplicant.submittedAt,
+        surname: data.surname,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        gender: data.gender || null,
+        dateOfBirth: data.dateOfBirth || null,
+        address: data.address || null,
+        countryOfOrigin: getCountryName(data.countryOfOrigin) || null,
+        stateOfOrigin: getStateName(data.countryOfOrigin, data.stateOfOrigin) || null,
+        localGovernmentOfOrigin: data.localGovernmentOfOrigin || null,
+        homeTown: data.homeTown || null,
+        schoolName: submittedApplicant.schoolName,
+        programType: submittedApplicant.programType,
+        programName: submittedApplicant.programName,
+        avatarDataUrl: data.avatarDataUrl || null,
+      });
+    } catch (downloadErr: unknown) {
+      setError(
+        downloadErr instanceof Error ? downloadErr.message : "Failed to download acknowledgment slip."
+      );
+    } finally {
+      setDownloadingSlip(false);
+    }
   };
 
   const inputClass =
@@ -459,10 +470,10 @@ export default function ApplicationFormPage() {
               <button
                 type="button"
                 onClick={handleDownloadAcknowledgment}
-                disabled={!submittedApplicant}
+                disabled={!submittedApplicant || downloadingSlip}
                 className="inline-block mt-6 h-11 px-6 rounded-lg bg-[rgb(3,158,29)] text-white font-medium hover:bg-[rgb(2,110,20)] disabled:opacity-60 transition"
               >
-                Download Acknowledgment Slip
+                {downloadingSlip ? "Generating PDF..." : "Download Acknowledgment Slip (PDF)"}
               </button>
             </div>
           ) : (

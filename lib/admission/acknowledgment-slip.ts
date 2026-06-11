@@ -293,19 +293,81 @@ export function buildAcknowledgmentSlipHtml(data: AcknowledgmentSlipData): strin
 </html>`;
 }
 
-export function downloadAcknowledgmentSlip(data: AcknowledgmentSlipData): void {
+async function waitForImages(root: ParentNode): Promise<void> {
+  const images = Array.from(root.querySelectorAll("img"));
+  await Promise.all(
+    images.map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve();
+            return;
+          }
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        })
+    )
+  );
+}
+
+export async function downloadAcknowledgmentSlip(data: AcknowledgmentSlipData): Promise<void> {
   const html = buildAcknowledgmentSlipHtml({
     ...data,
     logoUrl: data.logoUrl || `${window.location.origin}/images/fceo-logo.jpg`,
   });
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  const safeNo = data.applicationNo.replace(/[^\w-]+/g, "-");
-  link.href = url;
-  link.download = `FCEO-Acknowledgment-${safeNo}.html`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText = "position:fixed;left:-10000px;top:0;width:820px;height:1400px;border:0;";
+  iframe.srcdoc = html;
+  document.body.appendChild(iframe);
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      iframe.onload = () => resolve();
+      iframe.onerror = () => reject(new Error("Failed to render acknowledgment slip"));
+    });
+
+    const doc = iframe.contentDocument;
+    if (!doc) throw new Error("Failed to render acknowledgment slip");
+
+    await waitForImages(doc);
+
+    const slip = doc.querySelector(".slip") as HTMLElement | null;
+    if (!slip) throw new Error("Acknowledgment slip content not found");
+
+    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+      import("html2canvas"),
+      import("jspdf"),
+    ]);
+
+    const canvas = await html2canvas(slip, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const safeNo = data.applicationNo.replace(/[^\w-]+/g, "-");
+    pdf.save(`FCEO-Acknowledgment-${safeNo}.pdf`);
+  } finally {
+    document.body.removeChild(iframe);
+  }
 }
