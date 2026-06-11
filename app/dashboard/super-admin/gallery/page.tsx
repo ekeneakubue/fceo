@@ -21,11 +21,16 @@ type GalleryGroup = {
 export default function GalleryAdminPage() {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showEditGroup, setShowEditGroup] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<GalleryGroup | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDate, setEditDate] = useState("");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -71,11 +76,10 @@ export default function GalleryAdminPage() {
 
   const handleImageSelection = (files: FileList | null) => {
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
     setSelectedImages(fileArray);
-    
-    // Create previews
+
     const previews: string[] = [];
     fileArray.forEach((file) => {
       const reader = new FileReader();
@@ -89,11 +93,58 @@ export default function GalleryAdminPage() {
     });
   };
 
+  const openEditGroup = (group: GalleryGroup) => {
+    setEditingGroup(group);
+    setEditTitle(group.title || "");
+    setEditDate(group.date || "");
+    setShowEditGroup(true);
+  };
+
+  const closeEditGroup = () => {
+    setShowEditGroup(false);
+    setEditingGroup(null);
+    setEditTitle("");
+    setEditDate("");
+  };
+
+  const handleEditGroupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGroup) return;
+
+    const ids = editingGroup.images.map((img) => img.id).filter(Boolean) as string[];
+    if (ids.length === 0) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/gallery", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ids,
+          title: editTitle.trim() || null,
+          date: editDate || null,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update group");
+
+      const updatedItems = (await res.json()) as GalleryItem[];
+      const updatedById = new Map(updatedItems.map((item) => [item.id, item]));
+      const next = items.map((item) => (item.id && updatedById.has(item.id) ? updatedById.get(item.id)! : item));
+      persist(next);
+      closeEditGroup();
+    } catch (error) {
+      console.error("Error updating gallery group:", error);
+      alert("Failed to update group. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedImages.length === 0) return;
 
-    setLoading(true);
+    setSaving(true);
     try {
       // Convert files to base64
       const imagePromises = selectedImages.map((file) => {
@@ -149,7 +200,7 @@ export default function GalleryAdminPage() {
     } catch (error) {
       console.error("Error uploading images:", error);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -237,16 +288,16 @@ export default function GalleryAdminPage() {
                     type="button" 
                     onClick={() => setShowAdd(false)} 
                     className="dash-btn-secondary h-10 px-4 text-sm"
-                    disabled={loading}
+                    disabled={saving}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
                     className="dash-btn-primary h-10 px-4 text-sm"
-                    disabled={loading || selectedImages.length === 0}
+                    disabled={saving || selectedImages.length === 0}
                   >
-                    {loading ? (
+                    {saving ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-3 w-3 border border-white/20 border-t-white"></div>
                         Uploading...
@@ -254,6 +305,52 @@ export default function GalleryAdminPage() {
                     ) : (
                       `Upload ${selectedImages.length} Image${selectedImages.length !== 1 ? 's' : ''}`
                     )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {showEditGroup && editingGroup && (
+            <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center" role="dialog" aria-modal="true">
+              <form
+                className="w-[95%] max-w-lg grid gap-4 rounded-xl border border-black/[.08] dark:border-white/[.145] bg-white dark:bg-zinc-900 p-5"
+                onSubmit={handleEditGroupSubmit}
+              >
+                <div className="text-lg font-semibold">Edit Group</div>
+                <p className="text-sm text-slate-600">
+                  Update the title and date for all {editingGroup.images.length} image
+                  {editingGroup.images.length !== 1 ? "s" : ""} in this group.
+                </p>
+                <div>
+                  <label className="block text-xs mb-1">Title</label>
+                  <input
+                    className="dash-input"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Group title"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1">Date</label>
+                  <input
+                    type="date"
+                    className="dash-input"
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeEditGroup}
+                    className="dash-btn-secondary h-10 px-4 text-sm"
+                    disabled={saving}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="dash-btn-primary h-10 px-4 text-sm" disabled={saving}>
+                    {saving ? "Saving..." : "Save changes"}
                   </button>
                 </div>
               </form>
@@ -278,22 +375,33 @@ export default function GalleryAdminPage() {
                         <p className="text-sm text-black/60 dark:text-white/60">{group.date}</p>
                       )}
                     </div>
-                    <button
-                      className="h-8 px-3 rounded bg-red-600 text-white text-xs"
-                      onClick={() => {
-                        if (confirm(`Delete all images in "${group.title || "Untitled"}"?`)) {
-                          const deletePromises = group.images.map((img) =>
-                            fetch(`/api/gallery?id=${img.id}`, { method: "DELETE" })
-                          );
-                          Promise.all(deletePromises).then(() => {
-                            const next = items.filter((item) => !group.images.includes(item));
-                            persist(next);
-                          });
-                        }
-                      }}
-                    >
-                      Delete Group
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="h-8 px-3 rounded border border-black/20 text-xs"
+                        onClick={() => openEditGroup(group)}
+                      >
+                        Edit Group
+                      </button>
+                      <button
+                        type="button"
+                        className="h-8 px-3 rounded bg-red-600 text-white text-xs"
+                        onClick={() => {
+                          if (confirm(`Delete all images in "${group.title || "Untitled"}"?`)) {
+                            const groupIds = new Set(group.images.map((img) => img.id).filter(Boolean));
+                            const deletePromises = group.images.map((img) =>
+                              fetch(`/api/gallery?id=${img.id}`, { method: "DELETE" })
+                            );
+                            Promise.all(deletePromises).then(() => {
+                              const next = items.filter((item) => !item.id || !groupIds.has(item.id));
+                              persist(next);
+                            });
+                          }
+                        }}
+                      >
+                        Delete Group
+                      </button>
+                    </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {group.images.map((img, imgIdx) => (

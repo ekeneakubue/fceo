@@ -2,9 +2,10 @@ export type DashboardRole = "super-admin" | "registrar" | "admin" | "lecturer" |
 
 export type NavItem = {
   label: string;
-  href: string;
+  href?: string;
   icon: string;
   footer?: boolean;
+  children?: Array<{ label: string; href: string; icon: string }>;
 };
 
 export type NavConfig = {
@@ -19,15 +20,22 @@ export const NAV_CONFIG: Record<DashboardRole, NavConfig> = {
     subtitle: "Super Admin",
     items: [
       { label: "Overview", href: "/dashboard/super-admin", icon: "home" },
-      { label: "Users", href: "/dashboard/super-admin/users", icon: "users" },
-      { label: "Lecturers", href: "/dashboard/super-admin/lecturers", icon: "lecturer" },
-      { label: "Applicants", href: "/dashboard/super-admin/applicants", icon: "applicants" },
-      { label: "Students", href: "/dashboard/super-admin/students", icon: "students" },
+      {
+        label: "User Management",
+        icon: "user-management",
+        children: [
+          { label: "Users", href: "/dashboard/super-admin/users", icon: "users" },
+          { label: "Lecturers", href: "/dashboard/super-admin/lecturers", icon: "lecturer" },
+          { label: "Applicants", href: "/dashboard/super-admin/applicants", icon: "applicants" },
+          { label: "Students", href: "/dashboard/super-admin/students", icon: "students" },
+        ],
+      },
       { label: "Schools", href: "/dashboard/super-admin/schools", icon: "schools" },
       { label: "Programs", href: "/dashboard/super-admin/programs", icon: "programs" },
       { label: "Timetable", href: "/dashboard/super-admin/timetable", icon: "calendar" },
       { label: "News", href: "/dashboard/super-admin/news", icon: "news" },
       { label: "Gallery", href: "/dashboard/super-admin/gallery", icon: "gallery" },
+      { label: "Manage Hero", href: "/dashboard/super-admin/hero", icon: "hero" },
       { label: "Roles", href: "/dashboard/super-admin/roles", icon: "shield" },
       { label: "Widgets", href: "/dashboard/super-admin/widgets", icon: "widgets" },
       { label: "Settings", href: "/dashboard/super-admin/settings", icon: "settings", footer: true },
@@ -89,8 +97,18 @@ export function detectDashboardRole(pathname: string): DashboardRole {
   return "student";
 }
 
+function findNavLabel(items: NavItem[], pathname: string): string | undefined {
+  for (const item of items) {
+    if (item.href === pathname) return item.label;
+    if (item.children) {
+      const child = item.children.find((c) => c.href === pathname);
+      if (child) return child.label;
+    }
+  }
+  return undefined;
+}
+
 export function getPageTitle(pathname: string, role: DashboardRole): string {
   const config = NAV_CONFIG[role];
-  const match = config.items.find((item) => item.href === pathname);
-  return match?.label || config.subtitle;
+  return findNavLabel(config.items, pathname) || config.subtitle;
 }

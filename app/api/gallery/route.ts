@@ -55,6 +55,33 @@ export async function PUT(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const ids = body?.ids;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ error: "ids array required" }, { status: 400 });
+    }
+
+    await prisma.galleryItem.updateMany({
+      where: { id: { in: ids.map(String) } },
+      data: {
+        title: body.title ? String(body.title).trim() : null,
+        date: body.date ? String(body.date) : null,
+      },
+    });
+
+    const rows = await prisma.galleryItem.findMany({
+      where: { id: { in: ids.map(String) } },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(rows);
+  } catch (error: unknown) {
+    console.error("Database connection error (PATCH /api/gallery):", error);
+    return NextResponse.json({ error: "Database unavailable. Please try again later." }, { status: 503 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

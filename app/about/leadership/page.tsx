@@ -15,6 +15,7 @@ export default function LeadershipPage() {
       <section className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
+            { name: "Pro-Chancellor", img: "/images/officers/pro-chancellor.jpg", profile: "" },
             { name: "Provost", img: "/images/officers/provost.jpg", profile: "Ph.D(English), MA, BA, NCE, FICAN, NATRESL, MNATECEP." },
             { name: "Registrar", img: "/images/officers/registrar.jpg", profile: "M.Sc(PA), PGDPA, HND, MNIM, FCAI(JP)." },
             { name: "Bursar", img: "/images/officers/bursar.jpg", profile: "B.Sc, CITM, FIIA, CNA" },
