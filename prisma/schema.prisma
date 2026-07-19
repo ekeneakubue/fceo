@@ -188,6 +188,26 @@ model Hero {
   @@index([slideOrder])
 }
 
+// Principal officers managed via /dashboard/super-admin/leadership (Add Leadership modal)
+model Leadership {
+  id           String   @id @default(cuid())
+  // Modal: Upload photo
+  imageDataUrl String
+  // Modal: Full name
+  fullName     String
+  // Modal: Profile / Credentials (optional)
+  profile      String?
+  // Modal: Office / Title
+  officeTitle  String
+  // Modal: Display order
+  sortOrder    Int      @default(1)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
 enum ProgramType {
   NCE
   DEGREE

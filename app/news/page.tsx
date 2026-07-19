@@ -1,14 +1,34 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
-import Image from "next/image";
+
+type NewsPost = {
+  id: string;
+  title: string;
+  date?: string | null;
+  body?: string | null;
+  imageDataUrl?: string | null;
+};
 
 export default function NewsPage() {
-  const posts = [
-    { id: 1, title: "Orientation Program for newly appointed staff Day1", date: "19th - 20th June, 2025", img: "/images/news/news1.jpg", description: "Day One commenced with a welcome address by the Provost, Dr. Titus Ezeama, who emphasized the importance of integrity, diligence, and alignment with the college’s mission..." },
-    { id: 2, title: "Orientation Program for newly appointed staff Day2", date: "19th - 20th June, 2025", img: "/images/news/news2.jpg", description: "Day Two shifted focus to academic leadership and instructional effectiveness..." },
-    { id: 3, title: "Orientation Program for newly appointed staff Day3", date: "19th - 20th June, 2025", img: "/images/news/news3.jpg", description: "The programme concluded with closing remarks and commendations from the Provost, reaffirming the institution’s dedication to excellence, integrity, and ongoing staff development..." },
-    // { id: 4, title: "Community Outreach Program", date: "Jun 18, 2025", img: "/images/3.jfif" },
-  ];
+  const [posts, setPosts] = useState<NewsPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("/api/news", { cache: "no-store" })
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data?.error || "Failed to load news");
+        setPosts(Array.isArray(data) ? data : []);
+      })
+      .catch(() => setPosts([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -20,25 +40,44 @@ export default function NewsPage() {
         </div>
       </section>
       <main className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((p) => (
-            <article key={p.id} className="rounded-xl overflow-hidden border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5">
-              <div className="aspect-video bg-black/10 relative">
-                <Image src={p.img} alt={p.title} fill className="object-cover" />
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-black/60 dark:text-white/60">{p.date}</p>
-                <h3 className="mt-1 font-semibold">{p.title}</h3>
-                <p className="mt-1 text-sm text-black/70 dark:text-white/70">{p.description}</p>
-                <a className="mt-3 inline-block text-sm font-medium underline underline-offset-4" href="#">Read more</a>
-              </div>
-            </article>
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-center text-slate-500 py-12">Loading news...</p>
+        ) : posts.length === 0 ? (
+          <p className="text-center text-slate-500 py-12">No news posts yet.</p>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((p) => (
+              <article
+                key={p.id}
+                className="rounded-xl overflow-hidden border border-black/[.08] dark:border-white/[.145] bg-white/70 dark:bg-white/5 flex flex-col"
+              >
+                <div className="aspect-video bg-black/10 relative overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.imageDataUrl || "/images/news/news1.jpg"}
+                    alt={p.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  {p.date ? <p className="text-xs text-black/60 dark:text-white/60">{p.date}</p> : null}
+                  <h3 className="mt-1 font-semibold">{p.title}</h3>
+                  {p.body ? (
+                    <p className="mt-1 text-sm text-black/70 dark:text-white/70 line-clamp-3">{p.body}</p>
+                  ) : null}
+                  <Link
+                    href={`/news/${p.id}`}
+                    className="mt-3 inline-block text-sm font-medium text-[rgb(3,158,29)] hover:underline underline-offset-4"
+                  >
+                    Read more...
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
   );
 }
-
-
